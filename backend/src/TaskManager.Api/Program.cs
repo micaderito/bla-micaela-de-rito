@@ -31,7 +31,18 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
                      ?? ["http://localhost:4200"];
 builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicy, policy =>
-        policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            // Dev: allow any frontend origin/port so the SPA can be served from anywhere.
+            // SetIsOriginAllowed(_ => true) (not AllowAnyOrigin) keeps AllowCredentials usable.
+            policy.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+        }
+    }));
 
 // Swagger with Bearer support
 builder.Services.AddEndpointsApiExplorer();
