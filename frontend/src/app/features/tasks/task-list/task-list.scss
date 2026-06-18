@@ -1,31 +1,204 @@
-.list-header {
+.board-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
   h1 { margin: 0; }
 }
-.controls {
+
+.header-controls {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
-.filter-select {
-  width: 140px;
+
+.search-field {
+  width: 240px;
+
+  @media (max-width: 600px) { width: 100%; }
 }
-.task-grid {
+
+.kanban-board {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  align-items: start;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
 }
-.empty-state {
-  text-align: center;
-  padding: 64px 0;
+
+.kanban-col {
+  border-radius: 0 0 8px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top-width: 3px;
+  background: #f8f9fa;
+  padding: 10px 8px 12px;
+  min-height: 120px;
+  transition: background 0.15s, border-color 0.15s;
+
+  &[data-status='Pending']    { border-top-color: #EF9F27; }
+  &[data-status='InProgress'] { border-top-color: #378ADD; }
+  &[data-status='Done']       { border-top-color: #639922; }
+
+  &.drag-over {
+    background: #eef3fb;
+    border-color: #378ADD;
+  }
+}
+
+.col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 10px;
+}
+
+.col-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &[data-status='Pending']    { background: #EF9F27; }
+  &[data-status='InProgress'] { background: #378ADD; }
+  &[data-status='Done']       { background: #639922; }
+}
+
+.col-count {
+  font-size: 11px;
   color: rgba(0,0,0,.54);
+  background: white;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 99px;
+  padding: 1px 7px;
 }
+
+.drop-hint {
+  height: 0;
+  border-radius: 6px;
+  border: 2px dashed transparent;
+  margin-bottom: 0;
+  transition: height 0.15s, border-color 0.15s, margin-bottom 0.15s;
+
+  &.visible {
+    height: 36px;
+    border-color: rgba(55, 138, 221, 0.5);
+    margin-bottom: 8px;
+  }
+}
+
+.kb-card {
+  background: white;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: grab;
+  user-select: none;
+  transition: border-color 0.15s, opacity 0.15s;
+
+  &:last-child { margin-bottom: 0; }
+  &:hover { border-color: rgba(0,0,0,.25); }
+
+  &.dragging { opacity: 0.35; cursor: grabbing; }
+
+  &.done {
+    opacity: 0.6;
+    .card-title { text-decoration: line-through; color: rgba(0,0,0,.45); }
+  }
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: rgba(0,0,0,.87);
+  line-height: 1.4;
+
+  mark {
+    background: #FAEEDA;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+}
+
+.card-desc {
+  font-size: 12px;
+  color: rgba(0,0,0,.54);
+  margin: 0 0 8px;
+  line-height: 1.45;
+
+  mark {
+    background: #FAEEDA;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+
+.card-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(0,0,0,.45);
+}
+
+.date-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    &.warn mat-icon { color: #f44336; }
+  }
+}
+
+.kb-card:hover .card-actions { opacity: 1; }
+
+.col-empty {
+  font-size: 12px;
+  color: rgba(0,0,0,.38);
+  text-align: center;
+  padding: 20px 0 8px;
+  margin: 0;
+}
+
 .error-msg {
   color: #f44336;
   text-align: center;
