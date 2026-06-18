@@ -26,12 +26,30 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.AddAuthorization();
 
-// CORS for the Angular dev server
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                     ?? ["http://localhost:4200"];
+// CORS: permissive in dev, allowlisted everywhere else.
 builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicy, policy =>
-        policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            // Dev: allow any frontend origin/port so the SPA can be served from anywhere.
+            // SetIsOriginAllowed(_ => true) (not AllowAnyOrigin) keeps AllowCredentials usable.
+            policy.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        }
+        else
+        {
+            // Non-dev: restrict to the configured allowlist. Fail fast if it's
+            // missing rather than silently falling back to a permissive default.
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            if (allowedOrigins is not { Length: > 0 })
+            {
+                throw new InvalidOperationException(
+                    "Cors:AllowedOrigins must be configured in non-development environments.");
+            }
+
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+        }
+    }));
 
 // Swagger with Bearer support
 builder.Services.AddEndpointsApiExplorer();
