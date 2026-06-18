@@ -1,24 +1,30 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { DatePipe } from '@angular/common';
 import { TaskItem, TaskStatus } from '../../../core/models';
 
 export interface TaskFormData {
   task?: TaskItem;
 }
 
+interface WizardStep {
+  label: string;
+  title: string;
+}
+
 @Component({
   selector: 'app-task-form',
   imports: [
     ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatButtonModule,
-    MatDatepickerModule, MatNativeDateModule
+    MatInputModule, MatButtonModule, MatIconModule,
+    MatDatepickerModule, MatNativeDateModule, DatePipe
   ],
   templateUrl: './task-form.html',
   styleUrl: './task-form.scss',
@@ -30,6 +36,15 @@ export class TaskFormComponent implements OnInit {
 
   statuses: TaskStatus[] = ['Pending', 'InProgress', 'Done'];
   statusLabels: Record<TaskStatus, string> = { Pending: 'Pending', InProgress: 'In Progress', Done: 'Done' };
+
+  steps: WizardStep[] = [
+    { label: 'Basics', title: 'Set a title and description' },
+    { label: 'Details', title: 'Choose status and due date' },
+    { label: 'Review', title: 'Review and confirm' }
+  ];
+
+  currentStep = signal(0);
+  isLastStep = computed(() => this.currentStep() === this.steps.length - 1);
 
   form = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -52,8 +67,44 @@ export class TaskFormComponent implements OnInit {
     }
   }
 
+  // Returns true when the controls relevant to the current step are valid.
+  private isStepValid(step: number): boolean {
+    if (step === 0) return this.form.get('title')!.valid;
+    return true;
+  }
+
+  // Called from the template's disabled binding; re-evaluated each change-detection cycle.
+  canAdvance(): boolean {
+    return this.isStepValid(this.currentStep());
+  }
+
+  next() {
+    const step = this.currentStep();
+    if (!this.isStepValid(step)) {
+      if (step === 0) this.form.get('title')!.markAsTouched();
+      return;
+    }
+    if (!this.isLastStep()) this.currentStep.update(s => s + 1);
+  }
+
+  back() {
+    if (this.currentStep() > 0) this.currentStep.update(s => s - 1);
+  }
+
+  goToStep(step: number) {
+    // Only allow jumping to a step if every preceding step is valid.
+    for (let i = 0; i < step; i++) {
+      if (!this.isStepValid(i)) return;
+    }
+    this.currentStep.set(step);
+  }
+
   submit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.currentStep.set(0);
+      return;
+    }
     const v = this.form.value;
     this.dialogRef.close({
       title: v.title!,
