@@ -1,13 +1,10 @@
-<div class="list-header">
+<div class="board-header">
   <h1>My Tasks</h1>
-  <div class="controls">
-    <mat-form-field appearance="outline" class="filter-select">
-      <mat-label>Status</mat-label>
-      <mat-select [value]="statusFilter()" (valueChange)="filterChange($event)">
-        @for (s of statuses; track s) {
-          <mat-option [value]="s">{{ statusLabels[s] }}</mat-option>
-        }
-      </mat-select>
+  <div class="header-controls">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search tasks</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Title or description…" />
     </mat-form-field>
     <button mat-raised-button color="primary" (click)="openCreate()">
       <mat-icon>add</mat-icon> New Task
@@ -19,18 +16,64 @@
   <app-spinner />
 } @else if (taskService.error()) {
   <p class="error-msg">{{ taskService.error() }}</p>
-} @else if (filteredTasks().length === 0) {
-  <div class="empty-state">
-    <p>No tasks found. Create your first task!</p>
-  </div>
 } @else {
-  <div class="task-grid">
-    @for (task of filteredTasks(); track task.id) {
-      <app-task-item
-        [task]="task"
-        (edit)="openEdit($event)"
-        (delete)="confirmDelete($event)"
-      />
+  <div class="kanban-board">
+    @for (col of columns; track col.status) {
+      <div
+        class="kanban-col"
+        [class.drag-over]="dragOverCol() === col.status"
+        [attr.data-status]="col.status"
+        (dragover)="onDragOver($event, col.status)"
+        (dragleave)="onDragLeave($event, $any($event.currentTarget))"
+        (drop)="onDrop($event, col.status)"
+      >
+        <div class="col-header">
+          <span class="col-title">
+            <span class="status-dot" [attr.data-status]="col.status"></span>
+            {{ col.label }}
+          </span>
+          <span class="col-count">{{ columnCount(col.status)() }}</span>
+        </div>
+
+        <div class="drop-hint" [class.visible]="draggingId() !== null && dragOverCol() === col.status"></div>
+
+        @for (task of tasksForColumn(col.status)(); track task.id) {
+          <div
+            class="kb-card"
+            [class.dragging]="draggingId() === task.id"
+            [class.done]="task.status === 'Done'"
+            draggable="true"
+            [attr.aria-label]="task.title + ', ' + col.label"
+            (dragstart)="onDragStart($event, task)"
+            (dragend)="onDragEnd()"
+          >
+            <p class="card-title" [innerHTML]="highlightText(task.title, searchQuery())"></p>
+            @if (task.description) {
+              <p class="card-desc" [innerHTML]="highlightText(task.description, searchQuery())"></p>
+            }
+            <div class="card-footer">
+              <span class="card-date">
+                <mat-icon class="date-icon">calendar_today</mat-icon>
+                {{ formatDate(task.dueDate) }}
+              </span>
+              <div class="card-actions">
+                <button mat-icon-button class="action-btn" aria-label="Edit task" (click)="openEdit(task)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button class="action-btn warn" aria-label="Delete task" (click)="confirmDelete(task.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          @if (searchQuery().trim() !== '') {
+            <p class="col-empty">No matches</p>
+          } @else {
+            <p class="col-empty">No tasks</p>
+          }
+        }
+      </div>
     }
   </div>
 }
