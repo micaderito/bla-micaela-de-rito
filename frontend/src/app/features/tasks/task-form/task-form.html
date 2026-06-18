@@ -1,42 +1,116 @@
 <h2 mat-dialog-title>{{ isEdit ? 'Edit Task' : 'New Task' }}</h2>
-<mat-dialog-content>
-  <form [formGroup]="form" id="task-form" (ngSubmit)="submit()">
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Title</mat-label>
-      <input matInput formControlName="title" maxlength="200" />
-      @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
-        <mat-error>Title is required</mat-error>
-      }
-      @if (form.get('title')?.hasError('maxlength') && form.get('title')?.touched) {
-        <mat-error>Max 200 characters</mat-error>
-      }
-    </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Description</mat-label>
-      <textarea matInput formControlName="description" rows="3"></textarea>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Status</mat-label>
-      <mat-select formControlName="status">
-        @for (s of statuses; track s) {
-          <mat-option [value]="s">{{ statusLabels[s] }}</mat-option>
+<nav class="wizard-steps" aria-label="Progress">
+  @for (step of steps; track step.label; let i = $index) {
+    <button
+      type="button"
+      class="wizard-step"
+      [class.active]="currentStep() === i"
+      [class.done]="currentStep() > i"
+      [attr.aria-current]="currentStep() === i ? 'step' : null"
+      (click)="goToStep(i)">
+      <span class="wizard-dot">
+        @if (currentStep() > i) {
+          <mat-icon>check</mat-icon>
+        } @else {
+          {{ i + 1 }}
         }
-      </mat-select>
-    </mat-form-field>
+      </span>
+      <span class="wizard-step-label">{{ step.label }}</span>
+    </button>
+    @if (i < steps.length - 1) {
+      <span class="wizard-connector" [class.filled]="currentStep() > i"></span>
+    }
+  }
+</nav>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Due Date</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="dueDate" />
-      <mat-datepicker-toggle matIconSuffix [for]="picker" />
-      <mat-datepicker #picker />
-    </mat-form-field>
+<mat-dialog-content>
+  <p class="step-title">{{ steps[currentStep()].title }}</p>
+
+  <form [formGroup]="form" id="task-form" (ngSubmit)="submit()">
+    <!-- Step 1: Basics -->
+    <div class="step-panel" [hidden]="currentStep() !== 0">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" maxlength="200" />
+        @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
+          <mat-error>Title is required</mat-error>
+        }
+        @if (form.get('title')?.hasError('maxlength') && form.get('title')?.touched) {
+          <mat-error>Max 200 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+
+    <!-- Step 2: Details -->
+    <div class="step-panel" [hidden]="currentStep() !== 1">
+      <span class="field-label">Status</span>
+      <div class="status-pills" role="radiogroup" aria-label="Status">
+        @for (s of statuses; track s) {
+          <button
+            type="button"
+            class="status-pill"
+            role="radio"
+            [attr.aria-checked]="form.get('status')?.value === s"
+            [class.selected]="form.get('status')?.value === s"
+            (click)="form.get('status')?.setValue(s)">
+            {{ statusLabels[s] }}
+          </button>
+        }
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Due Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dueDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-datepicker #picker />
+      </mat-form-field>
+    </div>
+
+    <!-- Step 3: Review -->
+    <div class="step-panel" [hidden]="currentStep() !== 2">
+      <dl class="review-list">
+        <div class="review-row">
+          <dt>Title</dt>
+          <dd>{{ form.get('title')?.value || '—' }}</dd>
+        </div>
+        <div class="review-row">
+          <dt>Description</dt>
+          <dd>{{ form.get('description')?.value || '—' }}</dd>
+        </div>
+        <div class="review-row">
+          <dt>Status</dt>
+          <dd>{{ statusLabels[form.get('status')?.value || 'Pending'] }}</dd>
+        </div>
+        <div class="review-row">
+          <dt>Due Date</dt>
+          <dd>{{ form.get('dueDate')?.value ? (form.get('dueDate')?.value | date: 'mediumDate') : '—' }}</dd>
+        </div>
+      </dl>
+    </div>
   </form>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button type="button" (click)="cancel()">Cancel</button>
-  <button mat-raised-button color="primary" type="submit" form="task-form" [disabled]="form.invalid">
-    {{ isEdit ? 'Save' : 'Create' }}
-  </button>
+
+<mat-dialog-actions class="wizard-actions">
+  <span class="step-counter">Step {{ currentStep() + 1 }} of {{ steps.length }}</span>
+  <span class="actions-spacer"></span>
+  @if (currentStep() === 0) {
+    <button mat-button type="button" (click)="cancel()">Cancel</button>
+  } @else {
+    <button mat-button type="button" (click)="back()">Back</button>
+  }
+  @if (!isLastStep()) {
+    <button mat-raised-button color="primary" type="button" (click)="next()" [disabled]="!canAdvance()">
+      Next
+    </button>
+  } @else {
+    <button mat-raised-button color="primary" type="submit" form="task-form" [disabled]="form.invalid">
+      {{ isEdit ? 'Save' : 'Create' }}
+    </button>
+  }
 </mat-dialog-actions>
