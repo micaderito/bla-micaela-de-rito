@@ -1,0 +1,33 @@
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  h1 { margin: 0; }
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.filter-select {
+  width: 140px;
+}
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.empty-state {
+  text-align: center;
+  padding: 64px 0;
+  color: rgba(0,0,0,.54);
+}
+.error-msg {
+  color: #f44336;
+  text-align: center;
+  padding: 32px;
+}

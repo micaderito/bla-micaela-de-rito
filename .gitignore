@@ -1,0 +1,31 @@
+# ---- .NET ----
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+TestResults/
+coverage*.json
+coverage*.xml
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# ---- Node / Angular ----
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+coverage/
+
+# ---- OS / Editor ----
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# ---- Claude Code ----
+.claude/

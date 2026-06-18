@@ -1,0 +1,50 @@
+<div class="auth-container">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <mat-card-title>Create Account</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (error()) {
+        <p class="error-msg">{{ error() }}</p>
+      }
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+          @if (form.get('username')?.hasError('required') && form.get('username')?.touched) {
+            <mat-error>Username is required</mat-error>
+          }
+          @if (form.get('username')?.hasError('minlength') && form.get('username')?.touched) {
+            <mat-error>At least 3 characters</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email" />
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+            <mat-error>Email is required</mat-error>
+          }
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <mat-error>Enter a valid email</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password" type="password" autocomplete="new-password" />
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Password is required</mat-error>
+          }
+          @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+            <mat-error>At least 8 characters</mat-error>
+          }
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading()">
+          {{ loading() ? 'Creating account…' : 'Register' }}
+        </button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <p>Already have an account? <a routerLink="/login">Sign in</a></p>
+    </mat-card-actions>
+  </mat-card>
+</div>

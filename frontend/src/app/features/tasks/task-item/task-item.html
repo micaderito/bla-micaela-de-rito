@@ -1,0 +1,26 @@
+<mat-card class="task-card" [class.done]="task().status === 'Done'">
+  <mat-card-header>
+    <mat-card-title>{{ task().title }}</mat-card-title>
+    <mat-card-subtitle>
+      @if (task().dueDate) {
+        Due: {{ task().dueDate | date:'mediumDate' }}
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    @if (task().description) {
+      <p class="description">{{ task().description }}</p>
+    }
+    <mat-chip [color]="statusColor(task().status)" highlighted>
+      {{ statusLabel(task().status) }}
+    </mat-chip>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-icon-button aria-label="Edit task" (click)="edit.emit(task())">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-icon-button color="warn" aria-label="Delete task" (click)="delete.emit(task().id)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>

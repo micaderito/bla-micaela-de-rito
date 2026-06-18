@@ -1,0 +1,36 @@
+<div class="list-header">
+  <h1>My Tasks</h1>
+  <div class="controls">
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="statusFilter()" (valueChange)="filterChange($event)">
+        @for (s of statuses; track s) {
+          <mat-option [value]="s">{{ statusLabels[s] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon> New Task
+    </button>
+  </div>
+</div>
+
+@if (taskService.loading()) {
+  <app-spinner />
+} @else if (taskService.error()) {
+  <p class="error-msg">{{ taskService.error() }}</p>
+} @else if (filteredTasks().length === 0) {
+  <div class="empty-state">
+    <p>No tasks found. Create your first task!</p>
+  </div>
+} @else {
+  <div class="task-grid">
+    @for (task of filteredTasks(); track task.id) {
+      <app-task-item
+        [task]="task"
+        (edit)="openEdit($event)"
+        (delete)="confirmDelete($event)"
+      />
+    }
+  </div>
+}
