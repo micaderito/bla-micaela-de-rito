@@ -19,24 +19,7 @@ public sealed class DatabaseInitializer(
     public const string DemoEmail = "demo@taskmanager.dev";
     public const string DemoPassword = "Demo1234!";
 
-    /// <summary>Shared password for every seeded user (demo + bulk).</summary>
-    public const string SeedUserPassword = "Demo1234!";
-
-    /// <summary>
-    /// Additional users seeded alongside the demo user so there is data spread
-    /// across multiple accounts to process and analyze. Ids are stable so
-    /// re-seeding never duplicates them.
-    /// </summary>
-    private static readonly (Guid Id, string Username, string Email)[] BulkUsers =
-    [
-        (Guid.Parse("22222222-2222-2222-2222-222222222222"), "alice", "alice@taskmanager.dev"),
-        (Guid.Parse("33333333-3333-3333-3333-333333333333"), "bob",   "bob@taskmanager.dev"),
-        (Guid.Parse("44444444-4444-4444-4444-444444444444"), "carol", "carol@taskmanager.dev"),
-        (Guid.Parse("55555555-5555-5555-5555-555555555555"), "dave",  "dave@taskmanager.dev"),
-        (Guid.Parse("66666666-6666-6666-6666-666666666666"), "erin",  "erin@taskmanager.dev"),
-    ];
-
-    /// <summary>Approximate number of tasks to spread across all seeded users.</summary>
+    /// <summary>Approximate number of bulk tasks seeded for the demo user.</summary>
     private const int BulkTaskTarget = 200;
 
     public void Initialize(bool seed = true)
@@ -134,27 +117,18 @@ public sealed class DatabaseInitializer(
     }
 
     /// <summary>
-    /// Seeds several users and spreads ~<see cref="BulkTaskTarget"/> tasks across
-    /// all of them (demo included) with a mix of statuses, due dates and
-    /// timestamps so there is realistic volume to process and analyze.
-    /// Deterministic (fixed RNG seed) and idempotent.
+    /// Seeds ~<see cref="BulkTaskTarget"/> tasks for the demo user with a mix of
+    /// statuses, due dates and timestamps so there is realistic volume to
+    /// process and analyze. Deterministic (fixed RNG seed) and idempotent.
     /// </summary>
     private void SeedBulkData(SqliteConnection connection)
     {
-        var userIds = new List<Guid> { DemoUserId };
-        userIds.AddRange(BulkUsers.Select(u => u.Id));
-
-        // Idempotency: bail if the bulk users already have tasks.
+        // Idempotency: the demo seed inserts 3 tasks; anything beyond that
+        // means the bulk data is already present.
         using (var check = connection.CreateCommand())
         {
-            var idParams = userIds.Select((_, i) => $"$u{i}").ToArray();
-            check.CommandText =
-                $"SELECT COUNT(*) FROM Tasks WHERE UserId IN ({string.Join(", ", idParams)})";
-            for (var i = 0; i < userIds.Count; i++)
-                check.Parameters.AddWithValue($"$u{i}", userIds[i].ToString());
-
-            // Demo seed inserts 3 tasks for the demo user; anything beyond that
-            // means bulk data is already present.
+            check.CommandText = "SELECT COUNT(*) FROM Tasks WHERE UserId = $id";
+            check.Parameters.AddWithValue("$id", DemoUserId.ToString());
             if (Convert.ToInt64(check.ExecuteScalar()) > 3) return;
         }
 
@@ -162,30 +136,12 @@ public sealed class DatabaseInitializer(
 
         using var transaction = connection.BeginTransaction();
 
-        foreach (var user in BulkUsers)
-        {
-            using var insertUser = connection.CreateCommand();
-            insertUser.Transaction = transaction;
-            insertUser.CommandText =
-                """
-                INSERT OR IGNORE INTO Users (Id, Username, Email, PasswordHash, CreatedAt)
-                VALUES ($id, $username, $email, $hash, $createdAt);
-                """;
-            insertUser.Parameters.AddWithValue("$id", user.Id.ToString());
-            insertUser.Parameters.AddWithValue("$username", user.Username);
-            insertUser.Parameters.AddWithValue("$email", user.Email);
-            insertUser.Parameters.AddWithValue("$hash", passwordHasher.Hash(SeedUserPassword));
-            insertUser.Parameters.AddWithValue("$createdAt", now.AddDays(-120).ToString("O"));
-            insertUser.ExecuteNonQuery();
-        }
-
         // Fixed seed keeps the generated data reproducible across runs.
         var rng = new Random(12345);
         var statuses = Enum.GetValues<TaskItemStatus>();
 
         for (var i = 0; i < BulkTaskTarget; i++)
         {
-            var userId = userIds[i % userIds.Count];
             var status = statuses[rng.Next(statuses.Length)];
 
             // Spread creation over the last ~90 days; updated >= created.
@@ -217,7 +173,7 @@ public sealed class DatabaseInitializer(
             insertTask.Parameters.AddWithValue("$description", $"{verb} {subject} — seeded sample task #{i + 1}.");
             insertTask.Parameters.AddWithValue("$status", (int)status);
             insertTask.Parameters.AddWithValue("$due", (object?)dueDate?.ToString("O") ?? DBNull.Value);
-            insertTask.Parameters.AddWithValue("$userId", userId.ToString());
+            insertTask.Parameters.AddWithValue("$userId", DemoUserId.ToString());
             insertTask.Parameters.AddWithValue("$createdAt", createdAt.ToString("O"));
             insertTask.Parameters.AddWithValue("$updatedAt", updatedAt.ToString("O"));
             insertTask.ExecuteNonQuery();
