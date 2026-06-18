@@ -1,7 +1,13 @@
 <div class="auth-container">
   <mat-card class="auth-card">
     <mat-card-header>
-      <mat-card-title>Sign In</mat-card-title>
+      <div class="auth-logo">
+        <div class="auth-logo-mark">
+          <mat-icon>bolt</mat-icon>
+        </div>
+        <span class="auth-app-tag">Task Manager</span>
+      </div>
+      <mat-card-title>Welcome back</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (error()) {
@@ -23,7 +29,7 @@
           }
         </mat-form-field>
         <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading()">
-          {{ loading() ? 'Signing in…' : 'Sign In' }}
+          {{ loading() ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>
     </mat-card-content>
