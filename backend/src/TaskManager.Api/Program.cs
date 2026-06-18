@@ -38,9 +38,15 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // Non-dev: restrict to the configured allowlist.
-            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                                 ?? ["http://localhost:4200"];
+            // Non-dev: restrict to the configured allowlist. Fail fast if it's
+            // missing rather than silently falling back to a permissive default.
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+            if (allowedOrigins is not { Length: > 0 })
+            {
+                throw new InvalidOperationException(
+                    "Cors:AllowedOrigins must be configured in non-development environments.");
+            }
+
             policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
         }
     }));
