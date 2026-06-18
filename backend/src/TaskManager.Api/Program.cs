@@ -26,9 +26,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.AddAuthorization();
 
-// CORS for the Angular dev server
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                     ?? ["http://localhost:4200"];
+// CORS: permissive in dev, allowlisted everywhere else.
 builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicy, policy =>
     {
@@ -40,6 +38,9 @@ builder.Services.AddCors(options =>
         }
         else
         {
+            // Non-dev: restrict to the configured allowlist.
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                                 ?? ["http://localhost:4200"];
             policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
         }
     }));
