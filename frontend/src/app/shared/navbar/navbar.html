@@ -1,0 +1,53 @@
+<header class="nav-wrap">
+  <nav class="nav-pill">
+    <a class="brand" routerLink="/" aria-label="Task Manager home">
+      <span class="brand-mark"><mat-icon>bolt</mat-icon></span>
+      <span class="brand-name">Task<span class="brand-accent">Manager</span></span>
+    </a>
+
+    @if (auth.isAuthenticated()) {
+      <div class="nav-links">
+        @for (item of navItems; track item.path) {
+          <a class="pill-link" [routerLink]="item.path" routerLinkActive="active">
+            <mat-icon>{{ item.icon }}</mat-icon><span>{{ item.label }}</span>
+          </a>
+        }
+      </div>
+      <div class="nav-end">
+        <span class="avatar" [title]="auth.user()?.username ?? ''">{{ initials() }}</span>
+        <button mat-icon-button class="logout-btn" (click)="auth.logout()" aria-label="Log out">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+      <button mat-icon-button class="hamburger" [matMenuTriggerFor]="authMenu" aria-label="Open menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #authMenu="matMenu">
+        @for (item of navItems; track item.path) {
+          <a mat-menu-item [routerLink]="item.path">
+            <mat-icon>{{ item.icon }}</mat-icon><span>{{ item.label }}</span>
+          </a>
+        }
+        <button mat-menu-item (click)="auth.logout()">
+          <mat-icon>logout</mat-icon><span>Logout</span>
+        </button>
+      </mat-menu>
+    } @else {
+      <div class="nav-links">
+        <a class="pill-link" routerLink="/login" routerLinkActive="active">
+          <mat-icon>login</mat-icon><span>Login</span>
+        </a>
+        <a class="pill-link primary" routerLink="/register" routerLinkActive="active">
+          <mat-icon>person_add</mat-icon><span>Register</span>
+        </a>
+      </div>
+      <button mat-icon-button class="hamburger" [matMenuTriggerFor]="guestMenu" aria-label="Open menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #guestMenu="matMenu">
+        <a mat-menu-item routerLink="/login"><mat-icon>login</mat-icon><span>Login</span></a>
+        <a mat-menu-item routerLink="/register"><mat-icon>person_add</mat-icon><span>Register</span></a>
+      </mat-menu>
+    }
+  </nav>
+</header>
