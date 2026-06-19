@@ -10,6 +10,7 @@ import { DatePipe } from '@angular/common';
 import { Overlay } from '@angular/cdk/overlay';
 import { TaskItem, TaskStatus } from '../../../core/models';
 import { STATUS_LABELS, TASK_FORM_STEPS, TASK_STATUSES } from '../../../core/constants/app.constants';
+import { TASK_FORM_MESSAGES } from '../../../core/messages/app.messages';
 
 export interface TaskFormData {
   task?: TaskItem;
@@ -44,6 +45,7 @@ export class TaskFormComponent implements OnInit {
 
   statuses: TaskStatus[] = TASK_STATUSES;
   statusLabels: Record<TaskStatus, string> = STATUS_LABELS;
+  formMessages = TASK_FORM_MESSAGES;
 
   steps: WizardStep[] = TASK_FORM_STEPS;
 

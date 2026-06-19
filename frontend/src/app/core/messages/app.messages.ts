@@ -12,6 +12,12 @@ export const TASK_MESSAGES = {
   ERROR_DELETE: 'Failed to delete task',
 };
 
+export const TASK_FORM_MESSAGES = {
+  TITLE_REQUIRED:   'Title is required',
+  TITLE_MAXLENGTH:  'Max 200 characters',
+  DUE_DATE_INVALID: 'Invalid date',
+};
+
 export const AUTH_MESSAGES = {
   LOGIN_FAILED:    'Login failed',
   REGISTER_FAILED: 'Registration failed',
