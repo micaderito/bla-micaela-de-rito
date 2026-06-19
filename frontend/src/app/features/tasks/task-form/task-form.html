@@ -34,10 +34,10 @@
         <mat-label>Title</mat-label>
         <input matInput formControlName="title" maxlength="200" />
         @if (form.get('title')?.hasError('required') && form.get('title')?.touched) {
-          <mat-error>Title is required</mat-error>
+          <mat-error>{{ formMessages.TITLE_REQUIRED }}</mat-error>
         }
         @if (form.get('title')?.hasError('maxlength') && form.get('title')?.touched) {
-          <mat-error>Max 200 characters</mat-error>
+          <mat-error>{{ formMessages.TITLE_MAXLENGTH }}</mat-error>
         }
       </mat-form-field>
 
@@ -69,6 +69,9 @@
         <input matInput [matDatepicker]="picker" formControlName="dueDate" />
         <mat-datepicker-toggle matIconSuffix [for]="picker" />
         <mat-datepicker #picker />
+        @if (form.get('dueDate')?.hasError('matDatepickerParse') && form.get('dueDate')?.touched) {
+          <mat-error>{{ formMessages.DUE_DATE_INVALID }}</mat-error>
+        }
       </mat-form-field>
     </div>
 

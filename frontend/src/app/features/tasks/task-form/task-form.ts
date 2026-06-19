@@ -10,6 +10,7 @@ import { DatePipe } from '@angular/common';
 import { Overlay } from '@angular/cdk/overlay';
 import { TaskItem, TaskStatus } from '../../../core/models';
 import { STATUS_LABELS, TASK_FORM_STEPS, TASK_STATUSES } from '../../../core/constants/app.constants';
+import { TASK_FORM_MESSAGES } from '../../../core/messages/app.messages';
 
 export interface TaskFormData {
   task?: TaskItem;
@@ -44,6 +45,7 @@ export class TaskFormComponent implements OnInit {
 
   statuses: TaskStatus[] = TASK_STATUSES;
   statusLabels: Record<TaskStatus, string> = STATUS_LABELS;
+  formMessages = TASK_FORM_MESSAGES;
 
   steps: WizardStep[] = TASK_FORM_STEPS;
 
@@ -74,6 +76,7 @@ export class TaskFormComponent implements OnInit {
   // Returns true when the controls relevant to the current step are valid.
   private isStepValid(step: number): boolean {
     if (step === 0) return this.form.get('title')!.valid;
+    if (step === 1) return this.form.get('dueDate')!.valid;
     return true;
   }
 
@@ -86,6 +89,7 @@ export class TaskFormComponent implements OnInit {
     const step = this.currentStep();
     if (!this.isStepValid(step)) {
       if (step === 0) this.form.get('title')!.markAsTouched();
+      if (step === 1) this.form.get('dueDate')!.markAsTouched();
       return;
     }
     if (!this.isLastStep()) this.currentStep.update(s => s + 1);
