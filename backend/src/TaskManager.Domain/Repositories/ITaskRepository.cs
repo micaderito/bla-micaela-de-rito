@@ -8,7 +8,7 @@ namespace TaskManager.Domain.Repositories;
 /// </summary>
 public interface ITaskRepository
 {
-    Task<IReadOnlyList<TaskItem>> GetByUserAsync(Guid userId, CancellationToken ct = default);
+    Task<IReadOnlyList<TaskItem>> GetByUserAsync(Guid userId, DateTime? dueDateFrom, DateTime? dueDateTo, CancellationToken ct = default);
     Task<TaskItem?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(TaskItem task, CancellationToken ct = default);
     Task UpdateAsync(TaskItem task, CancellationToken ct = default);

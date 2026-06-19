@@ -33,12 +33,12 @@ public class TaskServiceTests
     public async Task GetTasks_ReturnsMappedTasksForUser()
     {
         var tasks = new List<TaskItem> { OwnedTask(), OwnedTask() };
-        _repo.Setup(r => r.GetByUserAsync(_userId, It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
+        _repo.Setup(r => r.GetByUserAsync(_userId, null, null, It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
 
         var result = await _sut.GetTasksAsync(_userId);
 
         result.Should().HaveCount(2);
-        _repo.Verify(r => r.GetByUserAsync(_userId, It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.GetByUserAsync(_userId, null, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

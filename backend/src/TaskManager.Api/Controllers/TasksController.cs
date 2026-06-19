@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TaskManager.Api.Extensions;
 using TaskManager.Application.DTOs;
 using TaskManager.Application.Services;
+using static TaskManager.Application.DTOs.DueDatePreset;
 
 namespace TaskManager.Api.Controllers;
 
@@ -17,8 +18,12 @@ public class TasksController(ITaskService taskService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<TaskDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<TaskDto>>> GetAll(CancellationToken ct)
-        => Ok(await taskService.GetTasksAsync(User.GetUserId(), ct));
+    public async Task<ActionResult<IReadOnlyList<TaskDto>>> GetAll(
+        [FromQuery] DueDatePreset? dueDatePreset,
+        [FromQuery] DateTime? dueDateFrom,
+        [FromQuery] DateTime? dueDateTo,
+        CancellationToken ct)
+        => Ok(await taskService.GetTasksAsync(User.GetUserId(), dueDatePreset, dueDateFrom, dueDateTo, ct));
 
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(TaskDto), StatusCodes.Status200OK)]

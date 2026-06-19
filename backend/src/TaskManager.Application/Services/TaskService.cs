@@ -16,10 +16,34 @@ public class TaskService(ITaskRepository tasks, IClock clock) : ITaskService
     public const int TitleMaxLength = 200;
     public const int DescriptionMaxLength = 2000;
 
-    public async Task<IReadOnlyList<TaskDto>> GetTasksAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<TaskDto>> GetTasksAsync(
+        Guid userId, DueDatePreset? preset = null, DateTime? dateFrom = null, DateTime? dateTo = null,
+        CancellationToken ct = default)
     {
-        var items = await tasks.GetByUserAsync(userId, ct);
+        var (from, to) = ResolvePreset(preset, dateFrom, dateTo);
+        var items = await tasks.GetByUserAsync(userId, from, to, ct);
         return items.Select(TaskDto.FromEntity).ToList();
+    }
+
+    private (DateTime? from, DateTime? to) ResolvePreset(DueDatePreset? preset, DateTime? dateFrom, DateTime? dateTo)
+    {
+        var today = clock.UtcNow.Date;
+        return preset switch
+        {
+            DueDatePreset.Today  => (today, today),
+            DueDatePreset.Week   => (WeekStart(today), WeekStart(today).AddDays(6)),
+            DueDatePreset.Month  => (new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc),
+                                     new DateTime(today.Year, today.Month,
+                                         DateTime.DaysInMonth(today.Year, today.Month), 0, 0, 0, DateTimeKind.Utc)),
+            DueDatePreset.Custom => (dateFrom?.Date, dateTo?.Date),
+            _                    => (null, null)
+        };
+    }
+
+    private static DateTime WeekStart(DateTime date)
+    {
+        var diff = ((int)date.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
+        return date.AddDays(-diff);
     }
 
     public async Task<TaskDto> GetTaskAsync(Guid userId, Guid taskId, CancellationToken ct = default)

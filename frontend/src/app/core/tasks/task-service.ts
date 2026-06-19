@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { CreateTaskDto, TaskItem, UpdateTaskDto } from '../models';
+import { CreateTaskDto, TaskDueDateFilter, TaskItem, UpdateTaskDto } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -18,10 +18,18 @@ export class TaskService {
 
   constructor(private http: HttpClient) {}
 
-  loadTasks() {
+  loadTasks(filter?: TaskDueDateFilter) {
     this._loading.set(true);
     this._error.set(null);
-    return this.http.get<TaskItem[]>(this.apiBase).pipe(
+    let params = new HttpParams();
+    if (filter) {
+      params = params.set('dueDatePreset', filter.preset);
+      if (filter.preset === 'Custom') {
+        if (filter.dateFrom) params = params.set('dueDateFrom', filter.dateFrom);
+        if (filter.dateTo) params = params.set('dueDateTo', filter.dateTo);
+      }
+    }
+    return this.http.get<TaskItem[]>(this.apiBase, { params }).pipe(
       tap({
         next: tasks => { this._tasks.set(tasks); this._loading.set(false); },
         error: (err: { error?: { detail?: string } }) => {
