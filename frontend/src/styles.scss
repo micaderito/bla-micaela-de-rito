@@ -92,6 +92,29 @@ a {
 
 .mat-mdc-form-field {
   font-family: var(--font-primary) !important;
+  --mat-form-field-container-height: var(--form-control-height);
+  --mat-form-field-container-vertical-padding: 8px;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-button,
+.mat-mdc-stroked-button,
+.mat-mdc-flat-button {
+  --mdc-protected-button-container-height: var(--form-control-height);
+  --mdc-filled-button-container-height: var(--form-control-height);
+  --mdc-outlined-button-container-height: var(--form-control-height);
+  --mdc-text-button-container-height: var(--form-control-height);
+}
+
+input:not([type='checkbox']):not([type='radio']):not(.mat-mdc-input-element) {
+  height: var(--form-control-height);
+}
+
+button:not(.mat-mdc-button):not(.mat-mdc-raised-button):not(.mat-mdc-icon-button):not(.mat-mdc-stroked-button):not(.mat-mdc-flat-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab) {
+  height: var(--form-control-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mat-mdc-card-title {
