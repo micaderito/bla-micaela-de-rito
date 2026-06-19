@@ -14,6 +14,7 @@ export const routes: Routes = [
   {
     path: 'tasks',
     canActivate: [authGuardGuard],
+    data: { nav: { label: 'Tasks', icon: 'checklist' } },
     loadComponent: () => import('./features/tasks/task-list/task-list').then(m => m.TaskListComponent)
   },
   { path: '**', redirectTo: '/tasks' }
