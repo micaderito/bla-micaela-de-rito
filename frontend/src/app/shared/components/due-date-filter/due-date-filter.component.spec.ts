@@ -47,8 +47,12 @@ describe('DueDateFilterComponent', () => {
 
     it('emits a filter for Week with Monday start', (done) => {
       component.filterChange.subscribe(f => {
-        expect(new Date(f?.dateFrom!).getDay()).toBe(1);
-        expect(new Date(f?.dateTo!).getDay()).toBe(0);
+        const parseDate = (str: string) => {
+          const [y, m, d] = str.split('-').map(Number);
+          return new Date(y, m - 1, d);
+        };
+        expect(parseDate(f?.dateFrom!).getDay()).toBe(1);
+        expect(parseDate(f?.dateTo!).getDay()).toBe(0);
         done();
       });
       component.selectPreset(DUE_DATE_PRESETS.WEEK);

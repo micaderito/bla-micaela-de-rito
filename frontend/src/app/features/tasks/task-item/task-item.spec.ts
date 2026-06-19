@@ -52,7 +52,7 @@ describe('TaskItemComponent', () => {
   });
 
   it('statusLabel returns readable label', () => {
-    expect(comp.statusLabel('InProgress')).toBe('In Progress');
+    expect(comp.statusLabel('InProgress')).toBe('In progress');
     expect(comp.statusLabel('Done')).toBe('Done');
   });
 });

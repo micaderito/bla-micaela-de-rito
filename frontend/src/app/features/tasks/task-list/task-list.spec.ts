@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TaskListComponent } from './task-list';
 import { TaskService } from '../../../core/tasks/task-service';
-import { TaskItem } from '../../../core/models';
+import { TaskItem, TaskDueDateFilter } from '../../../core/models';
 
 const mockTask: TaskItem = {
   id: '1', title: 'Task A', description: '', status: 'Pending',
@@ -52,21 +52,25 @@ describe('TaskListComponent', () => {
 
   it('should create', () => expect(comp).toBeTruthy());
   it('calls loadTasks on init', () => expect(taskSpy.loadTasks).toHaveBeenCalled());
-  it('filteredTasks returns all when filter is All', () => {
-    comp.statusFilter.set('All');
-    expect(comp.filteredTasks().length).toBe(1);
+  it('tasksForColumn returns tasks matching status', () => {
+    const pendingTasks = comp.tasksForColumn('Pending')();
+    expect(pendingTasks.length).toBe(1);
+    expect(pendingTasks[0].status).toBe('Pending');
   });
-  it('filteredTasks filters by status Done', () => {
-    comp.statusFilter.set('Done');
-    expect(comp.filteredTasks().length).toBe(0);
+  it('tasksForColumn filters by search query', () => {
+    comp.searchQuery.set('Task A');
+    const pendingTasks = comp.tasksForColumn('Pending')();
+    expect(pendingTasks.length).toBe(1);
   });
-  it('filteredTasks matches Pending', () => {
-    comp.statusFilter.set('Pending');
-    expect(comp.filteredTasks().length).toBe(1);
+  it('tasksForColumn returns empty when search does not match', () => {
+    comp.searchQuery.set('Non-existent');
+    const pendingTasks = comp.tasksForColumn('Pending')();
+    expect(pendingTasks.length).toBe(0);
   });
-  it('filterChange updates statusFilter', () => {
-    comp.filterChange('InProgress');
-    expect(comp.statusFilter()).toBe('InProgress');
+  it('onFilterChange calls loadTasks with filter', () => {
+    const filter: TaskDueDateFilter = { preset: 'Today' };
+    comp.onFilterChange(filter);
+    expect(taskSpy.loadTasks).toHaveBeenCalledWith(filter);
   });
 
   it('openCreate creates task on dialog close', fakeAsync(() => {
