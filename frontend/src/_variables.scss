@@ -1,28 +1,36 @@
 :root {
-  // Typography
+  // Typography (theme-independent)
   --font-primary: 'Nunito', 'Helvetica Neue', sans-serif;
 
-  // Form controls
+  // Form controls (theme-independent)
   --form-control-height: 40px;
+}
 
-  // Warm Slate design system palette
+// ---------------------------------------------------------------------------
+// Warm Slate design system — light palette (default)
+// data-theme is set on <html> by an inline script in index.html before paint,
+// so this also applies when no attribute is present.
+// ---------------------------------------------------------------------------
+:root,
+:root[data-theme='light'] {
   --color-bg: #F1EFE8;
   --color-surface: #ffffff;
   --color-border: #D3D1C7;
   --color-border-strong: #B4B2A9;
   --color-text-primary: #2C2C2A;
   --color-text-secondary: #5F5E5A;
+
   --color-accent: #D85A30;
   --color-accent-hover: #993C1D;
   --color-accent-light: #F5C4B3;
 
-  // White alias
-  --color-white: #ffffff;
+  // Foreground used on top of the accent (buttons, active pills, brand mark)
+  --color-on-accent: #ffffff;
 
-  // Primary blue (dashboard filters, task form wizard)
-  --color-primary: #185fa5;
-  --color-primary-hover: #0c447c;
-  --color-primary-light: rgba(24, 95, 165, 0.1);
+  // Primary = accent. Unifies the dashboard / filter buttons with the brand.
+  --color-primary: var(--color-accent);
+  --color-primary-hover: var(--color-accent-hover);
+  --color-primary-light: rgba(216, 90, 48, 0.10);
 
   // Task status
   --color-status-pending: #EF9F27;
@@ -41,6 +49,9 @@
   --color-kanban-col-bg: #f8f9fa;
   --color-kanban-drag-over: #eef3fb;
   --color-kanban-drop-hint: rgba(55, 138, 221, 0.5);
+
+  // Icon filters for date picker
+  --date-icon-filter: none;
 
   // Black alpha scale (borders, overlays, text on light surfaces)
   --alpha-03: rgba(0, 0, 0, 0.03);
@@ -66,4 +77,73 @@
   --alpha-75: rgba(0, 0, 0, 0.75);
   --alpha-85: rgba(0, 0, 0, 0.85);
   --alpha-87: rgba(0, 0, 0, 0.87);
+}
+
+// ---------------------------------------------------------------------------
+// Warm Slate design system — dark palette
+// Surfaces are warm-slate dark; accent lightens so it stays vivid on dark.
+// The alpha scale flips to white-based so borders / muted text that reference
+// it remain visible without per-component edits.
+// ---------------------------------------------------------------------------
+:root[data-theme='dark'] {
+  --color-bg: #211F1B;
+  --color-surface: #2B2823;
+  --color-border: #3D3A34;
+  --color-border-strong: #524E47;
+  --color-text-primary: #F0EDE6;
+  --color-text-secondary: #B0ADA4;
+
+  --color-accent: #E8753F;
+  --color-accent-hover: #F0997B;
+  --color-accent-light: rgba(232, 117, 63, 0.20);
+
+  --color-on-accent: #2B1810;
+
+  --color-primary-light: rgba(232, 117, 63, 0.18);
+
+  // Task status — lightened ramp stops so they read on dark surfaces
+  --color-status-pending: #FAC775;
+  --color-status-in-progress: #85B7EB;
+  --color-status-done: #97C459;
+
+  // Semantic states
+  --color-warn: #F0B45E;
+  --color-error: #F09595;
+  --color-danger: #F09595;
+  --color-success: #5DCAA5;
+
+  // Component-specific
+  --color-avatar-text: #F0997B;
+  --color-highlight: rgba(250, 199, 117, 0.22);
+  --color-kanban-col-bg: #232120;
+  --color-kanban-drag-over: #1E2A38;
+  --color-kanban-drop-hint: rgba(133, 183, 235, 0.5);
+
+  // Icon filters for date picker
+  --date-icon-filter: invert(1) hue-rotate(180deg) brightness(0.9);
+
+  // White alpha scale — light borders / overlays / muted text on dark surfaces
+  --alpha-03: rgba(255, 255, 255, 0.03);
+  --alpha-05: rgba(255, 255, 255, 0.05);
+  --alpha-06: rgba(255, 255, 255, 0.06);
+  --alpha-08: rgba(255, 255, 255, 0.08);
+  --alpha-10: rgba(255, 255, 255, 0.10);
+  --alpha-12: rgba(255, 255, 255, 0.12);
+  --alpha-14: rgba(255, 255, 255, 0.14);
+  --alpha-15: rgba(255, 255, 255, 0.15);
+  --alpha-18: rgba(255, 255, 255, 0.18);
+  --alpha-20: rgba(255, 255, 255, 0.20);
+  --alpha-23: rgba(255, 255, 255, 0.23);
+  --alpha-25: rgba(255, 255, 255, 0.25);
+  --alpha-30: rgba(255, 255, 255, 0.30);
+  --alpha-38: rgba(255, 255, 255, 0.38);
+  --alpha-40: rgba(255, 255, 255, 0.40);
+  --alpha-45: rgba(255, 255, 255, 0.45);
+  --alpha-50: rgba(255, 255, 255, 0.50);
+  --alpha-55: rgba(255, 255, 255, 0.55);
+  --alpha-60: rgba(255, 255, 255, 0.60);
+  --alpha-70: rgba(255, 255, 255, 0.70);
+  --alpha-75: rgba(255, 255, 255, 0.75);
+  --alpha-85: rgba(255, 255, 255, 0.85);
+  --alpha-87: rgba(255, 255, 255, 0.87);
 }

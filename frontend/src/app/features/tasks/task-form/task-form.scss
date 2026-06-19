@@ -74,7 +74,7 @@ mat-dialog-content {
 .wizard-step.done .wizard-dot {
   background: var(--mat-sys-primary, var(--color-primary));
   border-color: var(--mat-sys-primary, var(--color-primary));
-  color: var(--color-white);
+  color: var(--color-on-accent);
 }
 
 .wizard-connector {
@@ -121,7 +121,7 @@ mat-dialog-content {
 
 .status-pill {
   border: 1px solid var(--alpha-23);
-  background: var(--color-white);
+  background: var(--color-surface);
   color: var(--alpha-70);
   border-radius: 100px;
   padding: 6px 16px;
