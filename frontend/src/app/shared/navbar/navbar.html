@@ -5,6 +5,14 @@
       <span class="brand-name">Task<span class="brand-accent">Manager</span></span>
     </a>
 
+    <button
+      mat-icon-button
+      class="theme-toggle"
+      (click)="theme.toggle()"
+      [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+      <mat-icon>{{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
     @if (auth.isAuthenticated()) {
       <div class="nav-links">
         @for (item of navItems; track item.path) {
@@ -28,6 +36,10 @@
             <mat-icon>{{ item.icon }}</mat-icon><span>{{ item.label }}</span>
           </a>
         }
+        <button mat-menu-item (click)="theme.toggle()">
+          <mat-icon>{{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <span>{{ theme.theme() === 'dark' ? 'Light mode' : 'Dark mode' }}</span>
+        </button>
         <button mat-menu-item (click)="auth.logout()">
           <mat-icon>logout</mat-icon><span>Logout</span>
         </button>
@@ -47,6 +59,10 @@
       <mat-menu #guestMenu="matMenu">
         <a mat-menu-item routerLink="/login"><mat-icon>login</mat-icon><span>Login</span></a>
         <a mat-menu-item routerLink="/register"><mat-icon>person_add</mat-icon><span>Register</span></a>
+        <button mat-menu-item (click)="theme.toggle()">
+          <mat-icon>{{ theme.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <span>{{ theme.theme() === 'dark' ? 'Light mode' : 'Dark mode' }}</span>
+        </button>
       </mat-menu>
     }
   </nav>

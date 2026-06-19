@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../core/auth/auth-service';
+import { ThemeService } from '../../core/theme/theme-service';
 
 interface NavItem {
   path: string;
@@ -20,6 +21,7 @@ interface NavItem {
 export class NavbarComponent {
   private router = inject(Router);
   auth = inject(AuthService);
+  theme = inject(ThemeService);
 
   navItems: NavItem[] = this.router.config
     .filter(route => route.data?.['nav'])

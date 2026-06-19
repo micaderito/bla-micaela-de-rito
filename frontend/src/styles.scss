@@ -28,7 +28,7 @@ $warm-slate-primary: (
   )
 );
 
-$theme: mat.define-theme((
+$light-theme: mat.define-theme((
   color: (
     theme-type: light,
     primary: mat.$orange-palette,
@@ -36,8 +36,20 @@ $theme: mat.define-theme((
   )
 ));
 
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: mat.$orange-palette,
+    tertiary: mat.$red-palette
+  )
+));
+
 :root {
-  @include mat.all-component-themes($theme);
+  @include mat.all-component-themes($light-theme);
+}
+
+:root[data-theme='dark'] {
+  @include mat.all-component-colors($dark-theme);
 }
 
 html, body {
@@ -80,7 +92,7 @@ a {
 
 .mat-mdc-raised-button.mat-primary {
   background-color: var(--color-accent) !important;
-  color: var(--color-white) !important;
+  color: var(--color-on-accent) !important;
   font-family: var(--font-primary) !important;
   font-weight: 600 !important;
   letter-spacing: 0.3px;

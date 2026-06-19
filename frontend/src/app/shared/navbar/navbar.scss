@@ -33,7 +33,7 @@
   height: 34px;
   border-radius: 9px;
   background: var(--color-accent);
-  color: var(--color-white);
+  color: var(--color-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,12 +86,12 @@
   &.active,
   &.primary {
     background: var(--color-accent);
-    color: var(--color-white);
+    color: var(--color-on-accent);
   }
 
   &.primary:hover {
     background: var(--color-accent-hover);
-    color: var(--color-white);
+    color: var(--color-on-accent);
   }
 }
 
@@ -113,11 +113,14 @@
 
 .logout-btn { color: var(--color-text-secondary); }
 
+.theme-toggle { color: var(--color-text-secondary); }
+
 .hamburger { display: none; color: var(--color-text-primary); }
 
 @media (max-width: 600px) {
   .nav-links,
-  .nav-end { display: none; }
+  .nav-end,
+  .theme-toggle { display: none; }
   .hamburger { display: inline-flex; }
   .brand-name { font-size: 1.15rem; }
 }
