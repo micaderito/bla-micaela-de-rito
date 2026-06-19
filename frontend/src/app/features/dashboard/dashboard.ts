@@ -22,20 +22,16 @@ import {
   lastNWeeks,
   velocityByWeek,
 } from '../../core/tasks/task-stats';
+import {
+  CHART_COLORS,
+  DASHBOARD_PRESETS,
+  DASHBOARD_WEEKS,
+  DUE_HEALTH_LABELS,
+  FLOW_DATASET_LABELS,
+  STATUS_LABELS,
+} from '../../core/constants/app.constants';
 
 Chart.register(...registerables);
-
-const WEEKS = 8;
-
-const COLORS = {
-  pending: '#BA7517',
-  inProgress: '#378ADD',
-  done: '#1D9E75',
-  cycle: '#534AB7',
-  neutral: '#888780',
-  overdue: '#E24B4A',
-  grid: 'rgba(128,128,128,0.15)',
-};
 
 interface PresetOption {
   label: string;
@@ -58,15 +54,9 @@ export class DashboardComponent implements OnInit {
   private dueCanvas = viewChild<ElementRef<HTMLCanvasElement>>('dueCanvas');
 
   private charts: Chart[] = [];
-  private readonly weeks = lastNWeeks(WEEKS);
+  private readonly weeks = lastNWeeks(DASHBOARD_WEEKS);
 
-  readonly presets: PresetOption[] = [
-    { label: 'All', value: null },
-    { label: 'Today', value: 'Today' },
-    { label: 'This week', value: 'Week' },
-    { label: 'This month', value: 'Month' },
-    { label: 'Custom', value: 'Custom' },
-  ];
+  readonly presets: PresetOption[] = DASHBOARD_PRESETS;
 
   activePreset = signal<DueDatePreset | null>(null);
   customFrom = signal('');
@@ -164,7 +154,7 @@ export class DashboardComponent implements OnInit {
       x: { grid: { display: false } },
       y: {
         beginAtZero: true,
-        grid: { color: COLORS.grid },
+        grid: { color: CHART_COLORS.grid },
         ticks: yTickSuffix ? { callback: (v: number | string) => `${v}${yTickSuffix}` } : {},
       },
     });
@@ -174,7 +164,7 @@ export class DashboardComponent implements OnInit {
         type: 'bar',
         data: {
           labels,
-          datasets: [{ data: s.velocity, backgroundColor: COLORS.done, borderRadius: 4 }],
+          datasets: [{ data: s.velocity, backgroundColor: CHART_COLORS.done, borderRadius: 4 }],
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: noLegend, scales: xy() },
       })
@@ -184,11 +174,11 @@ export class DashboardComponent implements OnInit {
       new Chart(statusEl, {
         type: 'doughnut',
         data: {
-          labels: ['Pending', 'In progress', 'Done'],
+          labels: [STATUS_LABELS.Pending, STATUS_LABELS.InProgress, STATUS_LABELS.Done],
           datasets: [
             {
               data: [s.counts.pending, s.counts.inProgress, s.counts.done],
-              backgroundColor: [COLORS.pending, COLORS.inProgress, COLORS.done],
+              backgroundColor: [CHART_COLORS.pending, CHART_COLORS.inProgress, CHART_COLORS.done],
               borderWidth: 0,
             },
           ],
@@ -204,18 +194,18 @@ export class DashboardComponent implements OnInit {
           labels,
           datasets: [
             {
-              label: 'Created',
+              label: FLOW_DATASET_LABELS.CREATED,
               data: s.flow.created,
-              borderColor: COLORS.neutral,
+              borderColor: CHART_COLORS.neutral,
               backgroundColor: 'rgba(136,135,128,0.08)',
               fill: true,
               tension: 0.35,
               pointRadius: 0,
             },
             {
-              label: 'Completed',
+              label: FLOW_DATASET_LABELS.COMPLETED,
               data: s.flow.completed,
-              borderColor: COLORS.done,
+              borderColor: CHART_COLORS.done,
               borderDash: [5, 4],
               tension: 0.35,
               pointRadius: 0,
@@ -234,12 +224,12 @@ export class DashboardComponent implements OnInit {
           datasets: [
             {
               data: s.cycle,
-              borderColor: COLORS.cycle,
+              borderColor: CHART_COLORS.cycle,
               backgroundColor: 'rgba(83,74,183,0.08)',
               fill: true,
               tension: 0.35,
               pointRadius: 3,
-              pointBackgroundColor: COLORS.cycle,
+              pointBackgroundColor: CHART_COLORS.cycle,
               spanGaps: true,
             },
           ],
@@ -252,11 +242,11 @@ export class DashboardComponent implements OnInit {
       new Chart(dueEl, {
         type: 'bar',
         data: {
-          labels: ['Overdue', 'Due this week', 'Later', 'No due date'],
+          labels: [...DUE_HEALTH_LABELS],
           datasets: [
             {
               data: [s.due.overdue, s.due.dueThisWeek, s.due.later, s.due.noDueDate],
-              backgroundColor: [COLORS.overdue, COLORS.pending, COLORS.inProgress, COLORS.neutral],
+              backgroundColor: [CHART_COLORS.overdue, CHART_COLORS.pending, CHART_COLORS.inProgress, CHART_COLORS.neutral],
               borderRadius: 4,
             },
           ],
@@ -266,7 +256,7 @@ export class DashboardComponent implements OnInit {
           maintainAspectRatio: false,
           indexAxis: 'y',
           plugins: noLegend,
-          scales: { x: { beginAtZero: true, grid: { color: COLORS.grid } }, y: { grid: { display: false } } },
+          scales: { x: { beginAtZero: true, grid: { color: CHART_COLORS.grid } }, y: { grid: { display: false } } },
         },
       })
     );

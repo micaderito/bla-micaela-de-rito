@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DatePipe } from '@angular/common';
 import { TaskItem as TaskItemModel } from '../../../core/models';
+import { STATUS_COLORS, STATUS_LABELS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-task-item',
@@ -18,10 +19,10 @@ export class TaskItemComponent {
   delete = output<string>();
 
   statusColor(status: string): string {
-    return { Pending: 'primary', InProgress: 'accent', Done: 'warn' }[status] ?? 'primary';
+    return STATUS_COLORS[status as keyof typeof STATUS_COLORS] ?? 'primary';
   }
 
   statusLabel(status: string): string {
-    return { Pending: 'Pending', InProgress: 'In Progress', Done: 'Done' }[status] ?? status;
+    return STATUS_LABELS[status as keyof typeof STATUS_LABELS] ?? status;
   }
 }

@@ -153,8 +153,3 @@ export function dueHealth(tasks: TaskItem[], now: Date = new Date()): DueHealth 
   return health;
 }
 
-export const STATUS_LABEL: Record<TaskStatus, string> = {
-  Pending: 'Pending',
-  InProgress: 'In progress',
-  Done: 'Done',
-};

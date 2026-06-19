@@ -11,12 +11,8 @@ import { TaskFormComponent } from '../task-form/task-form';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
 import { SpinnerComponent } from '../../../shared/spinner/spinner';
 import { TaskItem, TaskStatus } from '../../../core/models';
-
-const COLUMNS: { status: TaskStatus; label: string }[] = [
-  { status: 'Pending',    label: 'Pending' },
-  { status: 'InProgress', label: 'In progress' },
-  { status: 'Done',       label: 'Done' },
-];
+import { KANBAN_COLUMNS, NO_DUE_DATE_TEXT, SNACK_DURATION, STATUS_LABELS } from '../../../core/constants/app.constants';
+import { CONFIRM_DELETE_TASK, TASK_MESSAGES } from '../../../core/messages/app.messages';
 
 @Component({
   selector: 'app-task-list',
@@ -32,7 +28,7 @@ export class TaskListComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
 
-  readonly columns = COLUMNS;
+  readonly columns = KANBAN_COLUMNS;
   searchQuery = signal('');
   draggingId = signal<string | null>(null);
   dragOverCol = signal<TaskStatus | null>(null);
@@ -62,8 +58,8 @@ export class TaskListComponent implements OnInit {
     this.dialog.open(TaskFormComponent, { data: {} }).afterClosed().subscribe(dto => {
       if (!dto) return;
       this.taskService.createTask(dto).subscribe({
-        next: () => this.snack.open('Task created', 'OK', { duration: 3000 }),
-        error: () => this.snack.open('Failed to create task', 'OK', { duration: 3000 })
+        next: () => this.snack.open(TASK_MESSAGES.CREATED, 'OK', { duration: SNACK_DURATION.DEFAULT }),
+        error: () => this.snack.open(TASK_MESSAGES.ERROR_CREATE, 'OK', { duration: SNACK_DURATION.DEFAULT })
       });
     });
   }
@@ -72,20 +68,20 @@ export class TaskListComponent implements OnInit {
     this.dialog.open(TaskFormComponent, { data: { task } }).afterClosed().subscribe(dto => {
       if (!dto) return;
       this.taskService.updateTask(task.id, dto).subscribe({
-        next: () => this.snack.open('Task updated', 'OK', { duration: 3000 }),
-        error: () => this.snack.open('Failed to update task', 'OK', { duration: 3000 })
+        next: () => this.snack.open(TASK_MESSAGES.UPDATED, 'OK', { duration: SNACK_DURATION.DEFAULT }),
+        error: () => this.snack.open(TASK_MESSAGES.ERROR_UPDATE, 'OK', { duration: SNACK_DURATION.DEFAULT })
       });
     });
   }
 
   confirmDelete(id: string) {
     this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Delete Task', message: 'Are you sure you want to delete this task?' }
+      data: CONFIRM_DELETE_TASK
     }).afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
       this.taskService.deleteTask(id).subscribe({
-        next: () => this.snack.open('Task deleted', 'OK', { duration: 3000 }),
-        error: () => this.snack.open('Failed to delete task', 'OK', { duration: 3000 })
+        next: () => this.snack.open(TASK_MESSAGES.DELETED, 'OK', { duration: SNACK_DURATION.DEFAULT }),
+        error: () => this.snack.open(TASK_MESSAGES.ERROR_DELETE, 'OK', { duration: SNACK_DURATION.DEFAULT })
       });
     });
   }
@@ -124,8 +120,8 @@ export class TaskListComponent implements OnInit {
     }
     const dto = { title: task.title, description: task.description, status: newStatus, dueDate: task.dueDate };
     this.taskService.updateTask(id, dto).subscribe({
-      next: () => this.snack.open(`Moved to ${newStatus === 'InProgress' ? 'In progress' : newStatus}`, 'OK', { duration: 2500 }),
-      error: () => this.snack.open('Failed to update task', 'OK', { duration: 3000 })
+      next: () => this.snack.open(TASK_MESSAGES.moved(newStatus), 'OK', { duration: SNACK_DURATION.SHORT }),
+      error: () => this.snack.open(TASK_MESSAGES.ERROR_UPDATE, 'OK', { duration: SNACK_DURATION.DEFAULT })
     });
     this.draggingId.set(null);
     this.dragOverCol.set(null);
@@ -142,7 +138,7 @@ export class TaskListComponent implements OnInit {
   }
 
   formatDate(dateStr: string | null): string {
-    if (!dateStr) return 'No due date';
+    if (!dateStr) return NO_DUE_DATE_TEXT;
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }

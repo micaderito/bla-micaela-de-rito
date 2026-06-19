@@ -2,10 +2,12 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { CreateTaskDto, TaskDueDateFilter, TaskItem, UpdateTaskDto } from '../models';
+import { API_BASE } from '../constants/app.constants';
+import { TASK_MESSAGES } from '../messages/app.messages';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
-  private readonly apiBase = 'http://localhost:5080/api/tasks';
+  private readonly apiBase = API_BASE.TASKS;
 
   private _tasks = signal<TaskItem[]>([]);
   private _loading = signal(false);
@@ -33,7 +35,7 @@ export class TaskService {
       tap({
         next: tasks => { this._tasks.set(tasks); this._loading.set(false); },
         error: (err: { error?: { detail?: string } }) => {
-          this._error.set(err.error?.detail ?? 'Failed to load tasks');
+          this._error.set(err.error?.detail ?? TASK_MESSAGES.ERROR_LOAD);
           this._loading.set(false);
         }
       })
