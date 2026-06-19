@@ -1,0 +1,24 @@
+<div class="filter-bar">
+  @for (p of presets; track p.label) {
+    <button
+      class="preset-btn"
+      [class.active]="activePreset() === p.value"
+      (click)="selectPreset(p.value)">
+      {{ p.label }}
+    </button>
+  }
+</div>
+
+@if (showCustomRange()) {
+  <div class="custom-range">
+    <label>
+      {{ labels.FROM }}
+      <input type="date" [(ngModel)]="customFrom" />
+    </label>
+    <label>
+      {{ labels.TO }}
+      <input type="date" [(ngModel)]="customTo" />
+    </label>
+    <button class="apply-btn" (click)="applyCustomRange()">{{ labels.APPLY }}</button>
+  </div>
+}

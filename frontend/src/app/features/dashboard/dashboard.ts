@@ -8,11 +8,11 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
 import { TaskService } from '../../core/tasks/task-service';
-import { DueDatePreset, TaskDueDateFilter } from '../../core/models';
+import { TaskDueDateFilter } from '../../core/models';
 import { SpinnerComponent } from '../../shared/spinner/spinner';
+import { DueDateFilterComponent } from '../../shared/components/due-date-filter/due-date-filter.component';
 import {
   completionRate,
   countByStatus,
@@ -24,7 +24,6 @@ import {
 } from '../../core/tasks/task-stats';
 import {
   CHART_COLORS,
-  DASHBOARD_PRESETS,
   DASHBOARD_WEEKS,
   DUE_HEALTH_LABELS,
   FLOW_DATASET_LABELS,
@@ -33,14 +32,9 @@ import {
 
 Chart.register(...registerables);
 
-interface PresetOption {
-  label: string;
-  value: DueDatePreset | null;
-}
-
 @Component({
   selector: 'app-dashboard',
-  imports: [SpinnerComponent, FormsModule],
+  imports: [SpinnerComponent, DueDateFilterComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -55,13 +49,6 @@ export class DashboardComponent implements OnInit {
 
   private charts: Chart[] = [];
   private readonly weeks = lastNWeeks(DASHBOARD_WEEKS);
-
-  readonly presets: PresetOption[] = DASHBOARD_PRESETS;
-
-  activePreset = signal<DueDatePreset | null>(null);
-  customFrom = signal('');
-  customTo = signal('');
-  showCustomRange = computed(() => this.activePreset() === 'Custom');
 
   private stats = computed(() => {
     const tasks = this.taskService.tasks();
@@ -90,48 +77,7 @@ export class DashboardComponent implements OnInit {
     this.taskService.loadTasks().subscribe();
   }
 
-  selectPreset(preset: DueDatePreset | null) {
-    this.activePreset.set(preset);
-    if (preset === 'Custom') {
-      const today = this.localDateStr(new Date());
-      this.customFrom.set(today);
-      this.customTo.set(today);
-      return;
-    }
-    this.reload(preset ? this.buildFilter(preset) : undefined);
-  }
-
-  applyCustomRange() {
-    const dateFrom = this.customFrom() || undefined;
-    const dateTo = this.customTo() || undefined;
-    this.reload({ preset: 'Custom', dateFrom, dateTo });
-  }
-
-  private localDateStr(d: Date): string {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-
-  private buildFilter(preset: DueDatePreset): TaskDueDateFilter {
-    const today = new Date();
-    const fmt = (d: Date) => this.localDateStr(d);
-
-    if (preset === 'Today') {
-      const s = fmt(today);
-      return { preset: 'Custom', dateFrom: s, dateTo: s };
-    }
-    if (preset === 'Week') {
-      const dow = today.getDay();
-      const toMon = dow === 0 ? -6 : 1 - dow;
-      const mon = new Date(today); mon.setDate(today.getDate() + toMon);
-      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-      return { preset: 'Custom', dateFrom: fmt(mon), dateTo: fmt(sun) };
-    }
-    const first = new Date(today.getFullYear(), today.getMonth(), 1);
-    const last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    return { preset: 'Custom', dateFrom: fmt(first), dateTo: fmt(last) };
-  }
-
-  private reload(filter?: TaskDueDateFilter) {
+  onFilterChange(filter: TaskDueDateFilter | undefined) {
     this.taskService.loadTasks(filter).subscribe();
   }
 

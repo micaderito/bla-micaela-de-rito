@@ -2,30 +2,7 @@
   <h1>Task Analytics</h1>
 </div>
 
-<div class="filter-bar">
-  @for (p of presets; track p.label) {
-    <button
-      class="preset-btn"
-      [class.active]="activePreset() === p.value"
-      (click)="selectPreset(p.value)">
-      {{ p.label }}
-    </button>
-  }
-</div>
-
-@if (showCustomRange()) {
-  <div class="custom-range">
-    <label>
-      From
-      <input type="date" [ngModel]="customFrom()" (ngModelChange)="customFrom.set($event)" />
-    </label>
-    <label>
-      To
-      <input type="date" [ngModel]="customTo()" (ngModelChange)="customTo.set($event)" />
-    </label>
-    <button class="apply-btn" (click)="applyCustomRange()">Apply</button>
-  </div>
-}
+<app-due-date-filter (filterChange)="onFilterChange($event)" />
 
 @if (taskService.loading()) {
   <app-spinner />

@@ -12,6 +12,8 @@
   </div>
 </div>
 
+<app-due-date-filter (filterChange)="onFilterChange($event)" />
+
 @if (taskService.loading()) {
   <app-spinner />
 } @else if (taskService.error()) {

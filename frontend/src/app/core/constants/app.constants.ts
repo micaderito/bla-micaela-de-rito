@@ -53,6 +53,13 @@ export const CHART_COLORS = {
   grid:       'rgba(128,128,128,0.15)',
 } as const;
 
+export const DUE_DATE_PRESETS = {
+  TODAY:  'Today'  as DueDatePreset,
+  WEEK:   'Week'   as DueDatePreset,
+  MONTH:  'Month'  as DueDatePreset,
+  CUSTOM: 'Custom' as DueDatePreset,
+} as const;
+
 export const DASHBOARD_PRESETS: { label: string; value: DueDatePreset | null }[] = [
   { label: 'All',        value: null },
   { label: 'Today',      value: 'Today' },
@@ -68,3 +75,9 @@ export const FLOW_DATASET_LABELS = { CREATED: 'Created', COMPLETED: 'Completed' 
 export const SNACK_DURATION = { DEFAULT: 3000, SHORT: 2500 } as const;
 
 export const NO_DUE_DATE_TEXT = 'No due date';
+
+export const FILTER_LABELS = {
+  FROM:  'From',
+  TO:    'To',
+  APPLY: 'Apply',
+} as const;
