@@ -39,12 +39,12 @@ public class DatabaseInitializerTests : IDisposable
     }
 
     [Fact]
-    public async Task Initialize_WithSeed_InsertsDemoUserAndTasks()
+    public async Task Initialize_WithSeed_CreatesDemoUserAndSeeds200Tasks()
     {
         _sut.Initialize(seed: true);
 
         CountRows("Users").Should().Be(1);
-        CountRows("Tasks").Should().Be(3);
+        CountRows("Tasks").Should().Be(200);
 
         var user = await new UserRepository(_factory).GetByUsernameAsync(DatabaseInitializer.DemoUsername);
         user.Should().NotBeNull();
@@ -58,7 +58,7 @@ public class DatabaseInitializerTests : IDisposable
         _sut.Initialize(seed: true);
 
         CountRows("Users").Should().Be(1);
-        CountRows("Tasks").Should().Be(3);
+        CountRows("Tasks").Should().Be(200);
     }
 
     private sealed class FixedClock : IClock
