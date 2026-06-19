@@ -73,7 +73,7 @@ the JWT returned by `/api/auth/login`.
 |----------|-------------|
 | `demo`   | `Demo1234!` |
 
-The demo user comes with three sample tasks.
+The demo user comes with 200 sample tasks as example data.
 
 ---
 
@@ -116,6 +116,22 @@ curl -s http://localhost:5000/api/tasks -H "Authorization: Bearer $TOKEN"
 
 ---
 
+## Features
+
+- **Authentication** — Register and log in with JWT-based stateless auth (Bearer tokens)
+- **Task management**
+  - **Add** tasks with title, description, due date
+  - **Update** task details and due dates
+  - **Delete** tasks with confirmation
+  - **Change status** via drag-and-drop (Pending → In Progress → Done)
+- **Dashboard** — Responsive task list with status overview
+- **Dark/Light mode** — Toggle theme with unified color system (Warm Slate design)
+- **Filters** — Filter tasks by due date (Today, This Week, This Month, Overdue)
+- **Responsive UI** — Fully responsive layout optimized for mobile, tablet, and desktop
+- **Authorization** — Tasks are private to the authenticated owner; cross-user access is forbidden
+
+---
+
 ## Testing & coverage
 
 Run the full suite:
@@ -140,8 +156,8 @@ human-readable report, install ReportGenerator once
 reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:coverage-report -reporttypes:Html
 ```
 
-**Current status:** 80 tests passing; ~96% line coverage of the application code
-(Infrastructure 100%, Api ~99%, Application ~87%; Domain is plain POCOs).
+**Current status:** All tests passing with >80% coverage across all layers
+(Infrastructure 100%, Api ~99%, Application ~92%; Domain is plain POCOs).
 
 ### Test strategy
 - **Application** services are the TDD heart: validation, ownership rules and error paths

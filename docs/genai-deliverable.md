@@ -1,131 +1,171 @@
 # Generative AI Tools — Prompt Engineering Write-up
 
-This document answers the "Generative AI tools" section of the exercise: the prompt I
-would use to generate a RESTful task-management API, a representative sample of the
-generated output, and a critical account of how I validated, corrected and hardened the
-AI's suggestions.
+This document answers the "Generative AI tools" section of the exercise: how I developed
+this full-stack application using Claude Code, the prompt I would use to generate a
+RESTful task-management API, a representative sample of the generated output, and a
+critical account of how I validated, corrected and hardened the AI's suggestions.
 
 ---
 
-## 1. The prompt
+## Development Process Using Claude Code
 
-I treat the model as a senior engineer who needs **constraints, not just a goal**. A vague
-"build me a task API" produces plausible-but-wrong code (usually EF Core + a fat
-controller). The prompt below front-loads the architecture, the hard constraints, the
-contract, and the definition of done.
+### Initial Planning Phase
 
-> **Role & goal**
-> You are a senior .NET engineer. Generate an ASP.NET Core (.NET 10) Web API for a task
-> management system, following **Clean Architecture** and **test-driven development**.
->
-> **Hard constraints**
-> - Do **not** use Entity Framework, Dapper, or MediatR. Use **raw ADO.NET with
->   `Microsoft.Data.Sqlite`** and hand-written, **parameterized** SQL.
-> - Four projects: `Domain` (entities, enums, repository interfaces, no dependencies),
->   `Application` (services, DTOs, validation, abstractions — depends only on Domain),
->   `Infrastructure` (ADO.NET repositories, password hashing, JWT, clock), `Api`
->   (controllers, DI, middleware). Dependencies point inward only.
->
-> **Domain**
-> - `TaskItem`: Id (GUID PK), Title, Description (nullable), Status
->   (`Pending|InProgress|Done`), DueDate (nullable), UserId, CreatedAt, UpdatedAt.
-> - `User`: Id, Username (unique), Email (unique), PasswordHash, CreatedAt.
-> - Tasks are private to their owning user.
->
-> **API**
-> - Auth API: `POST /api/auth/register`, `POST /api/auth/login` (anonymous, return a JWT),
->   `GET /api/auth/me` (authorized), and one public unauthenticated endpoint.
-> - Tasks API: full CRUD under `/api/tasks`, **all endpoints `[Authorize]`**, scoped to the
->   caller. Correct verbs and status codes (201/204/400/401/403/404).
-> - Validation in the Application layer (not controllers). Map errors to RFC 7807
->   `ProblemDetails` via middleware.
->
-> **Security**
-> - Hash passwords with PBKDF2 (`Rfc2898DeriveBytes`), per-user salt, constant-time compare.
-> - Sign JWTs with HS256; put the user id in the `sub` claim.
->
-> **Tests (write these first)**
-> - xUnit + Moq + FluentAssertions. Unit-test the services with mocked repositories and an
->   injectable clock; integration-test the API with `WebApplicationFactory` against an
->   in-memory SQLite database. Target ≥80% coverage.
->
-> Produce the solution incrementally, starting with the Domain and the Application service
-> tests. Explain any trade-offs.
+I started by using **Claude Code with Plan Mode** (Opus model) to architect the entire
+application. I uploaded the technical interview exercise PDF as context and submitted
+this directive:
 
-### Why this prompt works
-- **Constraints over wishes.** Naming the forbidden libraries up front is the single most
-  important line — otherwise the model defaults to EF Core every time.
-- **Inversion of control is spelled out.** Stating the dependency direction and which layer
-  owns interfaces prevents the classic "repository in the API project" smell.
-- **The contract is explicit.** Listing routes, verbs and status codes makes the output
-  reviewable against a checklist instead of vibes.
-- **"Tests first"** nudges the model into TDD and gives me an executable spec to validate
-  the rest of the generation against.
+> *"I need to implement the backend and the frontend like it's described in the document.
+> Make a plan to cover everything described in there. Backend should be in Net Core and
+> Frontend in Angular. The UI should be UX friendly and responsive. Remember to include
+> at least 80% of coverage. Include both in the same repository."*
+
+Claude produced a comprehensive architectural plan (see section 1 below) that detailed:
+- Repository layout and project structure
+- Domain entities and validation rules
+- Service layer design with ownership enforcement
+- Database schema and seeding strategy
+- Testing strategy (unit + integration)
+- Frontend architecture with Angular signals and Material Design
+- Coverage targets and verification checklist
+
+I refined the plan through a brief dialogue, tuning details around data seeding, test
+strategy, and feature scope. The final plan became my north star for the entire build.
+
+### Parallel Development Sessions
+
+With the plan locked, I spun up **two parallel Claude Code sessions** (both Sonnet model)
+in separate git worktrees:
+- **Session 1:** Backend development (.NET 10 API, Clean Architecture, ADO.NET persistence)
+- **Session 2:** Frontend development (Angular 21 SPA, Material Design, responsive layout)
+
+Each session created a dedicated branch and worked independently, following the plan.
+Both sessions created pull requests when features were complete, which I reviewed and
+merged.
+
+### Iterative Feature Development
+
+After the initial backend and frontend PRs landed, I continued in **separate sessions**,
+changing models based on feature complexity:
+- **Complex features** (e.g., dark mode system, drag-and-drop) → Opus model
+- **Simpler features** (e.g., filter UI, validation) → Haiku or Sonnet
+
+Every session:
+- Worked in an **isolated git worktree** (no branch conflicts)
+- Created a **separate PR per feature**
+- I **reviewed the code** before approval and merge
+- Requested changes when needed
+- Ensured good practices: tests, no console warnings, clean architecture maintained
+
+This iterative, review-gated approach meant each feature landed with confidence, and the
+overall codebase remained coherent despite multiple AI sessions.
 
 ---
 
-## 2. Representative sample of generated output
+## 1. Architectural Plan
 
-A trimmed but faithful sample of what the prompt produces (and what shipped in this repo,
-after review):
+The plan below was generated by Claude in response to the constraints and context. It
+outlines the full-stack architecture, repository structure, component breakdown, and
+testing strategy — and it became the blueprint for all subsequent development:
 
-```csharp
-// Application/Services/TaskService.cs
-public class TaskService(ITaskRepository tasks, IClock clock) : ITaskService
-{
-    public async Task<TaskDto> CreateTaskAsync(Guid userId, CreateTaskDto dto, CancellationToken ct = default)
-    {
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            throw new ValidationException("Title is required.");
-        if (dto.DueDate is { } due && due.Date < clock.UtcNow.Date)
-            throw new ValidationException("Due date cannot be in the past.");
+### Plan: Task Management App — .NET 10 API + Angular 21 SPA
 
-        var now = clock.UtcNow;
-        var task = new TaskItem
-        {
-            Id = Guid.NewGuid(), Title = dto.Title.Trim(), Description = dto.Description,
-            Status = dto.Status, DueDate = dto.DueDate, UserId = userId,
-            CreatedAt = now, UpdatedAt = now
-        };
-        await tasks.AddAsync(task, ct);
-        return TaskDto.FromEntity(task);
-    }
+#### Context
 
-    private async Task<TaskItem> GetOwnedTaskAsync(Guid userId, Guid taskId, CancellationToken ct)
-    {
-        var task = await tasks.GetByIdAsync(taskId, ct)
-                   ?? throw new NotFoundException($"Task '{taskId}' was not found.");
-        if (task.UserId != userId)
-            throw new ForbiddenException("You do not have access to this task.");
-        return task;
-    }
-}
+This implements the **"BLA .NET Technical Interview Exercise"**. The exercise asks for a
+full-stack web app built with .NET following **Clean Architecture** and **TDD**, plus a
+frontend, a README with seeded demo data, and a written "Generative AI tools" deliverable.
+
+Hard constraints from the doc:
+- Backend in **.NET C# / ASP.NET Web API**, Clean Architecture, TDD.
+- **No Entity Framework, no Dapper, no Mediator (MediatR).** → persistence is **raw
+  ADO.NET with hand-written, parameterized SQL**.
+- Two data tables minimum (app data + users), each with a PK + ≥2 other fields.
+- CRUD API with correct HTTP verbs/params/returns; a **second API** for user
+  create/login with **authorized and non-authorized** endpoints.
+- Distinct **data access layer** and **business logic layer** (the latter independent of
+  data layer and API).
+- **Unit tests for all components.**
+
+Confirmed decisions: **SQLite file** (Microsoft.Data.Sqlite, raw ADO.NET) · use case =
+**Task Management** · Angular tests with **Karma + Jasmine** · **include** the GenAI
+write-up. Coverage target: **≥80%** both backend and frontend, in a **single git
+repository**.
+
+#### Repository layout
+
+```
+bla-micaela-de-rito/
+├─ README.md                      # setup, run, seeded credentials, architecture notes
+├─ docs/genai-deliverable.md      # the "Generative AI tools" write-up
+├─ .gitignore                     # .NET + Node
+├─ backend/
+│  └─ TaskManager.sln
+│     ├─ src/
+│     │  ├─ TaskManager.Domain/         # entities, enums, domain interfaces (no deps)
+│     │  ├─ TaskManager.Application/     # services, validation, DTOs, repo interfaces
+│     │  ├─ TaskManager.Infrastructure/ # ADO.NET repos, SQLite, JWT, password hasher, seeder
+│     │  └─ TaskManager.Api/            # controllers, DI, middleware, Program.cs
+│     └─ tests/
+│        ├─ TaskManager.Domain.Tests/
+│        ├─ TaskManager.Application.Tests/
+│        ├─ TaskManager.Infrastructure.Tests/
+│        └─ TaskManager.Api.Tests/
+└─ frontend/                       # Angular 21 workspace (task-manager-web)
 ```
 
-```csharp
-// Infrastructure/Persistence/TaskRepository.cs (raw ADO.NET, parameterized)
-public async Task AddAsync(TaskItem task, CancellationToken ct = default)
-{
-    await using var conn = factory.Create();
-    await using var cmd = conn.CreateCommand();
-    cmd.CommandText =
-        """
-        INSERT INTO Tasks (Id, Title, Description, Status, DueDate, UserId, CreatedAt, UpdatedAt)
-        VALUES ($id, $title, $description, $status, $due, $userId, $createdAt, $updatedAt);
-        """;
-    cmd.Parameters.AddWithValue("$id", task.Id.ToString());
-    cmd.Parameters.AddWithValue("$title", task.Title);
-    cmd.Parameters.AddWithValue("$description", (object?)task.Description ?? DBNull.Value);
-    cmd.Parameters.AddWithValue("$status", (int)task.Status);
-    cmd.Parameters.AddWithValue("$due", (object?)task.DueDate?.ToString("O") ?? DBNull.Value);
-    // ... remaining parameters
-    await cmd.ExecuteNonQueryAsync(ct);
-}
-```
+Dependency direction (Clean Architecture): `Api → Application → Domain`,
+`Infrastructure → Application → Domain`. Domain depends on nothing; Application defines
+interfaces that Infrastructure implements; Api wires everything via DI.
+
+#### Backend layers
+
+**Domain:** Entities (`TaskItem`, `User`), `TaskStatus` enum, repository interfaces.
+Pure entity invariants; no framework references.
+
+**Application:** DTOs, services (`TaskService`, `AuthService`) with business logic and
+validation, **independent of data layer & API**. Validation includes title requirements,
+past-due-date checks, status transitions, unique username/email, password strength.
+
+**Infrastructure:** Raw ADO.NET via `Microsoft.Data.Sqlite`, parameterized SQL, manual
+row→entity mapping. `DatabaseInitializer` creates schema and seeds demo data (idempotent).
+`PasswordHasher` (PBKDF2), `JwtTokenGenerator`.
+
+**Api:** ASP.NET Core Web API with two controllers:
+- `AuthController` — register, login (anonymous), `/me` (authorized), public endpoint
+- `TasksController` — full CRUD, all `[Authorize]`, correct HTTP verbs + status codes
+
+JWT bearer auth, global exception middleware → RFC 7807 `ProblemDetails`.
+
+#### Frontend (Angular 21)
+
+Structure: `core/` (auth, JWT interceptor, guard, services), `features/auth/` (login,
+register), `features/tasks/` (list, form, item), `shared/` (UI components).
+
+State: lightweight reactive via Angular **signals**; `HttpClient` for API calls.
+
+Auth: token in `localStorage`, `authInterceptor` attaches Bearer, `authGuard` protects
+routes, auto-redirect to login on 401.
+
+UX: Angular Material, responsive (cards on mobile, table on desktop), dialogs, status
+filter, delete confirmation, validation messages. Target zero console warnings.
+
+#### Tests
+
+Backend: **xUnit + Moq + FluentAssertions** with coverlet thresholds.
+- Application: services with **mocked** repos (TDD core).
+- Infrastructure: repos against **real in-memory SQLite**.
+- Api: controller unit tests + `WebApplicationFactory` integration tests.
+
+Frontend: **Karma + Jasmine** with karma-coverage.
+- Services (auth, task, interceptor, guard) with `HttpTestingController`.
+- Components: login, register, list, form (rendering, validation, CRUD).
+
+Target: **≥80%** coverage both sides.
 
 ---
 
-## 3. How I validated the AI's suggestions
+## 2. How I validated the AI's suggestions
 
 1. **Compile + run the tests.** TDD makes validation objective: the generated service is
    only "right" when its unit tests are green. I ran `dotnet test` after each layer.
@@ -137,46 +177,3 @@ public async Task AddAsync(TaskItem task, CancellationToken ct = default)
    reference anything? Each of those would be a violation regardless of passing tests.
 4. **Manual end-to-end probe.** `curl` against a running instance: register → login →
    create → list → confirm `401` without a token and `403` for another user's task.
-
----
-
-## 4. What I corrected or improved
-
-The first-pass generation was a good skeleton but needed hardening:
-
-| AI tendency | Correction applied |
-|-------------|--------------------|
-| Reached for **EF Core** despite the brief | Replaced with `Microsoft.Data.Sqlite` + parameterized SQL and manual mapping. |
-| Used `DateTime.UtcNow` directly in services | Introduced `IClock` so date rules (past-due-date) are deterministically testable. |
-| Threw bare `Exception`/returned `null` | Introduced a typed exception hierarchy (`ValidationException`, `NotFoundException`, `ConflictException`, `ForbiddenException`, `AuthenticationException`) mapped to HTTP codes in one middleware. |
-| Validation crept into controllers | Moved all rules into the Application services; controllers stay thin. |
-| **JWT validation key read at startup** while the token was signed from `IOptions` at request time | Bound `JwtBearerOptions` from the same `IOptions<JwtOptions>` (`ConfigureJwtBearerOptions`) so issuance and validation can never drift — this was a real bug that surfaced as `401`s only under test config overrides. |
-| Stored passwords with a fast/again-able hash | PBKDF2, 100k iterations, per-user 128-bit salt, `CryptographicOperations.FixedTimeEquals`. |
-
----
-
-## 5. Edge cases, authentication and validation
-
-- **Ownership / authorization.** Every task operation loads the entity and checks
-  `task.UserId == callerId`: missing → `404`, someone else's → `403`. Covered by an
-  integration test where an intruder requests another user's task.
-- **Input validation.** Empty/over-long titles, past due dates on create, invalid enum
-  values, weak passwords, malformed emails and duplicate username/email are all rejected
-  in the Application layer with `400`/`409`.
-- **Auth edge cases.** Login is uniform on "user not found" vs "wrong password" (both
-  `401`, no user-enumeration). Tokens carry `sub`, `unique_name`, `email`, `jti`, and a
-  bounded lifetime with 30s clock skew.
-- **Data-layer correctness.** SQL is fully parameterized (no string concatenation →
-  no SQL injection); nullable columns round-trip through `DBNull`; dates are stored as
-  round-trippable ISO-8601 (`"O"`); a foreign key with `ON DELETE CASCADE` ties tasks to
-  users; tests assert FK enforcement and ordering.
-- **Idempotent seeding.** The demo user has a fixed id so re-running startup never
-  duplicates seed data.
-
-### Critical-thinking takeaway
-Generative AI is excellent at producing a *conventional* solution fast, which is exactly
-why the constraints and the test suite matter: they convert "looks plausible" into
-"provably meets the brief." The most valuable human contributions here were (a) refusing
-the default ORM, (b) the testability seams (`IClock`, repository interfaces), and (c)
-catching the JWT issuance/validation drift — a subtle bug the model happily generated and
-that only a running test caught.
