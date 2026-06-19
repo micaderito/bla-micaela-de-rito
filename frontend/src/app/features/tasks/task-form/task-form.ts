@@ -5,9 +5,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule, MAT_DATEPICKER_SCROLL_STRATEGY } from '@angular/material/datepicker';
 import { DatePipe } from '@angular/common';
+import { Overlay } from '@angular/cdk/overlay';
 import { TaskItem, TaskStatus } from '../../../core/models';
 import { STATUS_LABELS, TASK_FORM_STEPS, TASK_STATUSES } from '../../../core/constants/app.constants';
 
@@ -25,7 +25,14 @@ interface WizardStep {
   imports: [
     ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatButtonModule, MatIconModule,
-    MatDatepickerModule, MatNativeDateModule, DatePipe
+    MatDatepickerModule, DatePipe
+  ],
+  providers: [
+    {
+      provide: MAT_DATEPICKER_SCROLL_STRATEGY,
+      useFactory: (overlay: Overlay) => () => overlay.scrollStrategies.noop(),
+      deps: [Overlay]
+    }
   ],
   templateUrl: './task-form.html',
   styleUrl: './task-form.scss',
