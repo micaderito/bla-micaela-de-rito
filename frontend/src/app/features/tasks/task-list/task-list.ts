@@ -10,7 +10,8 @@ import { TaskService } from '../../../core/tasks/task-service';
 import { TaskFormComponent } from '../task-form/task-form';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
 import { SpinnerComponent } from '../../../shared/spinner/spinner';
-import { TaskItem, TaskStatus } from '../../../core/models';
+import { DueDateFilterComponent } from '../../../shared/components/due-date-filter/due-date-filter.component';
+import { TaskItem, TaskStatus, TaskDueDateFilter } from '../../../core/models';
 import { KANBAN_COLUMNS, NO_DUE_DATE_TEXT, SNACK_DURATION, STATUS_LABELS } from '../../../core/constants/app.constants';
 import { CONFIRM_DELETE_TASK, TASK_MESSAGES } from '../../../core/messages/app.messages';
 
@@ -18,7 +19,7 @@ import { CONFIRM_DELETE_TASK, TASK_MESSAGES } from '../../../core/messages/app.m
   selector: 'app-task-list',
   imports: [
     MatButtonModule, MatIconModule, MatInputModule, MatFormFieldModule,
-    FormsModule, SpinnerComponent
+    FormsModule, SpinnerComponent, DueDateFilterComponent
   ],
   templateUrl: './task-list.html',
   styleUrl: './task-list.scss',
@@ -52,6 +53,10 @@ export class TaskListComponent implements OnInit {
 
   ngOnInit() {
     this.taskService.loadTasks().subscribe();
+  }
+
+  onFilterChange(filter: TaskDueDateFilter | undefined) {
+    this.taskService.loadTasks(filter).subscribe();
   }
 
   openCreate() {
