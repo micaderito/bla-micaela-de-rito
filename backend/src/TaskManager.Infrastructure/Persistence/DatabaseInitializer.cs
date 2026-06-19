@@ -19,7 +19,7 @@ public sealed class DatabaseInitializer(
     public const string DemoEmail = "demo@taskmanager.dev";
     public const string DemoPassword = "Demo1234!";
 
-    /// <summary>Approximate number of bulk tasks seeded for the demo user.</summary>
+    /// <summary>Number of tasks seeded for the demo user.</summary>
     private const int BulkTaskTarget = 200;
 
     public void Initialize(bool seed = true)
@@ -28,7 +28,6 @@ public sealed class DatabaseInitializer(
         CreateSchema(connection);
         if (seed)
         {
-            SeedDemoData(connection);
             SeedBulkData(connection);
         }
     }
@@ -63,73 +62,37 @@ public sealed class DatabaseInitializer(
         cmd.ExecuteNonQuery();
     }
 
-    private void SeedDemoData(SqliteConnection connection)
+    private void EnsureDemoUser(SqliteConnection connection)
     {
-        using (var check = connection.CreateCommand())
-        {
-            check.CommandText = "SELECT COUNT(*) FROM Tasks WHERE UserId = $id";
-            check.Parameters.AddWithValue("$id", DemoUserId.ToString());
-            if (Convert.ToInt64(check.ExecuteScalar()) > 0) return;
-        }
-
-        using (var ensureUser = connection.CreateCommand())
-        {
-            ensureUser.CommandText =
-                """
-                INSERT OR IGNORE INTO Users (Id, Username, Email, PasswordHash, CreatedAt)
-                VALUES ($id, $username, $email, $hash, $createdAt);
-                """;
-            ensureUser.Parameters.AddWithValue("$id", DemoUserId.ToString());
-            ensureUser.Parameters.AddWithValue("$username", DemoUsername);
-            ensureUser.Parameters.AddWithValue("$email", DemoEmail);
-            ensureUser.Parameters.AddWithValue("$hash", passwordHasher.Hash(DemoPassword));
-            ensureUser.Parameters.AddWithValue("$createdAt", clock.UtcNow.ToString("O"));
-            ensureUser.ExecuteNonQuery();
-        }
-
-        var now = clock.UtcNow;
-
-        var samples = new[]
-        {
-            ("Welcome to Task Manager", "This is a seeded demo task. Edit or delete it!", TaskItemStatus.Pending, now.AddDays(2)),
-            ("Try editing a task", "Open this task and change its status to In Progress.", TaskItemStatus.InProgress, now.AddDays(5)),
-            ("Mark a task as done", "Completed tasks show with a different style.", TaskItemStatus.Done, (DateTime?)null)
-        };
-
-        foreach (var (title, description, status, due) in samples)
-        {
-            using var insertTask = connection.CreateCommand();
-            insertTask.CommandText =
-                """
-                INSERT INTO Tasks (Id, Title, Description, Status, DueDate, UserId, CreatedAt, UpdatedAt)
-                VALUES ($id, $title, $description, $status, $due, $userId, $createdAt, $updatedAt);
-                """;
-            insertTask.Parameters.AddWithValue("$id", Guid.NewGuid().ToString());
-            insertTask.Parameters.AddWithValue("$title", title);
-            insertTask.Parameters.AddWithValue("$description", (object?)description ?? DBNull.Value);
-            insertTask.Parameters.AddWithValue("$status", (int)status);
-            insertTask.Parameters.AddWithValue("$due", (object?)due?.ToString("O") ?? DBNull.Value);
-            insertTask.Parameters.AddWithValue("$userId", DemoUserId.ToString());
-            insertTask.Parameters.AddWithValue("$createdAt", now.ToString("O"));
-            insertTask.Parameters.AddWithValue("$updatedAt", now.ToString("O"));
-            insertTask.ExecuteNonQuery();
-        }
+        using var ensureUser = connection.CreateCommand();
+        ensureUser.CommandText =
+            """
+            INSERT OR IGNORE INTO Users (Id, Username, Email, PasswordHash, CreatedAt)
+            VALUES ($id, $username, $email, $hash, $createdAt);
+            """;
+        ensureUser.Parameters.AddWithValue("$id", DemoUserId.ToString());
+        ensureUser.Parameters.AddWithValue("$username", DemoUsername);
+        ensureUser.Parameters.AddWithValue("$email", DemoEmail);
+        ensureUser.Parameters.AddWithValue("$hash", passwordHasher.Hash(DemoPassword));
+        ensureUser.Parameters.AddWithValue("$createdAt", clock.UtcNow.ToString("O"));
+        ensureUser.ExecuteNonQuery();
     }
 
     /// <summary>
-    /// Seeds ~<see cref="BulkTaskTarget"/> tasks for the demo user with a mix of
+    /// Seeds <see cref="BulkTaskTarget"/> tasks for the demo user with a mix of
     /// statuses, due dates and timestamps so there is realistic volume to
     /// process and analyze. Deterministic (fixed RNG seed) and idempotent.
     /// </summary>
     private void SeedBulkData(SqliteConnection connection)
     {
-        // Idempotency: the demo seed inserts 3 tasks; anything beyond that
-        // means the bulk data is already present.
+        EnsureDemoUser(connection);
+
+        // Idempotency: if tasks already exist for demo user, skip seeding.
         using (var check = connection.CreateCommand())
         {
             check.CommandText = "SELECT COUNT(*) FROM Tasks WHERE UserId = $id";
             check.Parameters.AddWithValue("$id", DemoUserId.ToString());
-            if (Convert.ToInt64(check.ExecuteScalar()) > 3) return;
+            if (Convert.ToInt64(check.ExecuteScalar()) > 0) return;
         }
 
         var now = clock.UtcNow;
