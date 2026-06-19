@@ -1,14 +1,14 @@
 <div class="auth-container">
   <mat-card class="auth-card">
-    <mat-card-header>
+    <div class="auth-header">
+      <h2 class="auth-title">Create your account</h2>
       <div class="auth-logo">
         <div class="auth-logo-mark">
           <mat-icon>bolt</mat-icon>
         </div>
-        <span class="auth-app-tag">Task Manager</span>
+        <span class="auth-wordmark">Task<span class="auth-wordmark-accent">Manager</span></span>
       </div>
-      <mat-card-title>Create your account</mat-card-title>
-    </mat-card-header>
+    </div>
     <mat-card-content>
       @if (error()) {
         <p class="error-msg">{{ error() }}</p>
