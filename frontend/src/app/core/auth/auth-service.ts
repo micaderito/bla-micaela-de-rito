@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { AuthResult, LoginDto, RegisterDto, User } from '../models';
@@ -50,7 +50,9 @@ export class AuthService {
   loadCurrentUser() {
     this.http.get<User>(`${this.apiBase}/me`).subscribe({
       next: user => this._user.set(user),
-      error: () => this.logout()
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 401) this.logout();
+      }
     });
   }
 }
