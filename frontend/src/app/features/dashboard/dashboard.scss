@@ -24,7 +24,7 @@
 }
 
 .preset-btn {
-  padding: 6px 16px;
+  padding: 0 16px;
   border-radius: 20px;
   border: 0.5px solid var(--alpha-18);
   background: transparent;
@@ -63,15 +63,12 @@
     color: var(--alpha-60);
 
     input[type='date'] {
-      height: var(--form-control-height);
       padding: 0 10px;
       border: 0.5px solid var(--alpha-20);
       border-radius: 6px;
       font-size: 0.8125rem;
       background: var(--color-white);
       cursor: pointer;
-      display: flex;
-      align-items: center;
 
       &:focus {
         outline: 2px solid var(--color-primary);
@@ -82,7 +79,6 @@
 }
 
 .apply-btn {
-  height: var(--form-control-height);
   padding: 0 18px;
   border-radius: 6px;
   border: none;
@@ -91,8 +87,6 @@
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  display: flex;
-  align-items: center;
 
   &:hover {
     background: var(--color-primary-hover);
