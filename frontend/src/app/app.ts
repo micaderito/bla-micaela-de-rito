@@ -1,35 +1,21 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { Component, inject, computed } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from './core/auth/auth-service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
-  template: `
-    <mat-toolbar color="primary">
-      <span>Task Manager</span>
-      <span class="spacer"></span>
-      @if (auth.isAuthenticated()) {
-        <span class="username">{{ auth.user()?.username }}</span>
-        <button mat-button (click)="auth.logout()">Logout</button>
-      } @else {
-        <a mat-button routerLink="/login">Login</a>
-        <a mat-button routerLink="/register">Register</a>
-      }
-    </mat-toolbar>
-    <main>
-      <router-outlet />
-    </main>
-  `,
-  styles: [`
-    mat-toolbar { position: sticky; top: 0; z-index: 100; }
-    .spacer { flex: 1; }
-    .username { margin-right: 8px; font-size: 14px; }
-    main { padding: 24px 16px; max-width: 960px; margin: 0 auto; }
-  `]
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatMenuModule],
+  templateUrl: './app.html',
+  styleUrl: './app.scss'
 })
 export class App {
   auth = inject(AuthService);
+
+  initials = computed(() => {
+    const name = this.auth.user()?.username ?? '';
+    return name.slice(0, 2).toUpperCase();
+  });
 }
