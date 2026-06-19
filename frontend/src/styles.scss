@@ -94,6 +94,17 @@ a {
   font-family: var(--font-primary) !important;
 }
 
+input:not([type='checkbox']):not([type='radio']):not(.mat-mdc-input-element) {
+  height: var(--form-control-height);
+}
+
+button:not(.mat-mdc-button):not(.mat-mdc-raised-button):not(.mat-mdc-icon-button):not(.mat-mdc-stroked-button):not(.mat-mdc-flat-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab) {
+  height: var(--form-control-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .mat-mdc-card-title {
   font-family: var(--font-primary) !important;
   color: var(--color-text-primary) !important;
