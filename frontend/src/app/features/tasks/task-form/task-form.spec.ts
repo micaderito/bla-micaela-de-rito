@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { TaskFormComponent } from './task-form';
 import { TaskItem } from '../../../core/models';
 
@@ -15,6 +16,7 @@ function makeFixture(task?: TaskItem) {
     imports: [TaskFormComponent],
     providers: [
       provideAnimationsAsync(),
+      provideNativeDateAdapter(),
       { provide: MatDialogRef, useValue: dialogRef },
       { provide: MAT_DIALOG_DATA, useValue: task ? { task } : {} }
     ]

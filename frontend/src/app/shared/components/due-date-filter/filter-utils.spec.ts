@@ -38,16 +38,21 @@ describe('buildFilter', () => {
   });
 
   describe('Week', () => {
+    function parseDate(dateStr: string): Date {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
     it('spans Monday to Sunday', () => {
       const filter = buildFilter(DUE_DATE_PRESETS.WEEK);
-      expect(new Date(filter.dateFrom!).getDay()).toBe(1);
-      expect(new Date(filter.dateTo!).getDay()).toBe(0);
+      expect(parseDate(filter.dateFrom!).getDay()).toBe(1);
+      expect(parseDate(filter.dateTo!).getDay()).toBe(0);
     });
 
     it('range is exactly 6 days apart', () => {
       const filter = buildFilter(DUE_DATE_PRESETS.WEEK);
-      const from = new Date(filter.dateFrom!);
-      const to   = new Date(filter.dateTo!);
+      const from = parseDate(filter.dateFrom!);
+      const to   = parseDate(filter.dateTo!);
       const diffDays = (to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000);
       expect(diffDays).toBe(6);
     });
@@ -56,7 +61,7 @@ describe('buildFilter', () => {
       jasmine.clock().install();
       jasmine.clock().mockDate(new Date(2024, 0, 7)); // known Sunday
       const filter = buildFilter(DUE_DATE_PRESETS.WEEK);
-      expect(new Date(filter.dateFrom!).getDay()).toBe(1);
+      expect(parseDate(filter.dateFrom!).getDay()).toBe(1);
       jasmine.clock().uninstall();
     });
   });
