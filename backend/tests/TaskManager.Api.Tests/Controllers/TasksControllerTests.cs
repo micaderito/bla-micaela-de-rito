@@ -34,10 +34,10 @@ public class TasksControllerTests
     [Fact]
     public async Task GetAll_ReturnsOkWithCallersTasks()
     {
-        _service.Setup(s => s.GetTasksAsync(_userId, It.IsAny<CancellationToken>()))
+        _service.Setup(s => s.GetTasksAsync(_userId, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync([Sample(Guid.NewGuid())]);
 
-        var result = await _sut.GetAll(CancellationToken.None);
+        var result = await _sut.GetAll(null, null, null, CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
     }

@@ -1,0 +1,113 @@
+<div class="dash-header">
+  <h1>Task Analytics</h1>
+</div>
+
+<div class="filter-bar">
+  @for (p of presets; track p.label) {
+    <button
+      class="preset-btn"
+      [class.active]="activePreset() === p.value"
+      (click)="selectPreset(p.value)">
+      {{ p.label }}
+    </button>
+  }
+</div>
+
+@if (showCustomRange()) {
+  <div class="custom-range">
+    <label>
+      From
+      <input type="date" [ngModel]="customFrom()" (ngModelChange)="customFrom.set($event)" />
+    </label>
+    <label>
+      To
+      <input type="date" [ngModel]="customTo()" (ngModelChange)="customTo.set($event)" />
+    </label>
+    <button class="apply-btn" (click)="applyCustomRange()">Apply</button>
+  </div>
+}
+
+@if (taskService.loading()) {
+  <app-spinner />
+} @else if (taskService.error()) {
+  <p class="error-msg">{{ taskService.error() }}</p>
+} @else if (total() === 0) {
+  <div class="empty-state">
+    <p>No tasks match the selected filter.</p>
+  </div>
+} @else {
+  <div class="kpi-grid">
+    <div class="kpi">
+      <span class="kpi-label">Total tasks</span>
+      <span class="kpi-value">{{ total() }}</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Pending</span>
+      <span class="kpi-value warn">{{ pending() }}</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">In progress</span>
+      <span class="kpi-value info">{{ inProgress() }}</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-label">Completion rate</span>
+      <span class="kpi-value success">{{ completionRatePct() }}%</span>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <section class="card">
+      <h2>Completion velocity</h2>
+      <p class="card-sub">Tasks marked done per week</p>
+      <div class="canvas-wrap">
+        <canvas #velocityCanvas role="img"
+          aria-label="Bar chart of tasks completed per week over the last 8 weeks"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Status distribution</h2>
+      <p class="card-sub">Where the backlog sits right now</p>
+      <div class="legend">
+        <span><i class="dot" style="background:#BA7517"></i>Pending</span>
+        <span><i class="dot" style="background:#378ADD"></i>In progress</span>
+        <span><i class="dot" style="background:#1D9E75"></i>Done</span>
+      </div>
+      <div class="canvas-wrap">
+        <canvas #statusCanvas role="img"
+          aria-label="Doughnut chart of tasks by status: pending, in progress and done"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Created vs completed</h2>
+      <p class="card-sub">Is the backlog growing or shrinking?</p>
+      <div class="legend">
+        <span><i class="line" style="background:#888780"></i>Created</span>
+        <span><i class="line dashed" style="border-color:#1D9E75"></i>Completed</span>
+      </div>
+      <div class="canvas-wrap">
+        <canvas #flowCanvas role="img"
+          aria-label="Line chart comparing tasks created versus completed per week"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Cycle time</h2>
+      <p class="card-sub">Avg days from created to done</p>
+      <div class="canvas-wrap">
+        <canvas #cycleCanvas role="img"
+          aria-label="Line chart of average days to complete a task per week"></canvas>
+      </div>
+    </section>
+
+    <section class="card span-full">
+      <h2>Due-date health</h2>
+      <p class="card-sub">Open tasks by deadline proximity</p>
+      <div class="canvas-wrap short">
+        <canvas #dueCanvas role="img"
+          aria-label="Horizontal bar chart of open tasks grouped by overdue, due this week, later and no due date"></canvas>
+      </div>
+    </section>
+  </div>
+}

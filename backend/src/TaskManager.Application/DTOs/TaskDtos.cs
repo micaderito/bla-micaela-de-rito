@@ -3,6 +3,8 @@ using TaskManager.Domain.Enums;
 
 namespace TaskManager.Application.DTOs;
 
+public enum DueDatePreset { Today, Week, Month, Custom }
+
 public record CreateTaskDto(string Title, string? Description, TaskItemStatus Status, DateTime? DueDate);
 
 public record UpdateTaskDto(string Title, string? Description, TaskItemStatus Status, DateTime? DueDate);

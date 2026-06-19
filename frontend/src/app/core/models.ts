@@ -13,6 +13,14 @@ export interface AuthResult {
 
 export type TaskStatus = 'Pending' | 'InProgress' | 'Done';
 
+export type DueDatePreset = 'Today' | 'Week' | 'Month' | 'Custom';
+
+export interface TaskDueDateFilter {
+  preset: DueDatePreset;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 export interface TaskItem {
   id: string;
   title: string;

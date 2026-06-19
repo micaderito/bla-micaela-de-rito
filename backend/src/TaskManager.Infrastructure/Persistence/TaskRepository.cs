@@ -12,13 +12,30 @@ public sealed class TaskRepository(ISqliteConnectionFactory factory) : ITaskRepo
     private const string Columns =
         "Id, Title, Description, Status, DueDate, UserId, CreatedAt, UpdatedAt";
 
-    public async Task<IReadOnlyList<TaskItem>> GetByUserAsync(Guid userId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<TaskItem>> GetByUserAsync(
+        Guid userId, DateTime? dueDateFrom, DateTime? dueDateTo, CancellationToken ct = default)
     {
         await using var conn = factory.Create();
         await using var cmd = conn.CreateCommand();
-        cmd.CommandText =
-            $"SELECT {Columns} FROM Tasks WHERE UserId = $userId ORDER BY CreatedAt DESC";
+
+        var sql = new System.Text.StringBuilder(
+            $"SELECT {Columns} FROM Tasks WHERE UserId = $userId");
         cmd.Parameters.AddWithValue("$userId", userId.ToString());
+
+        if (dueDateFrom.HasValue)
+        {
+            sql.Append(" AND date(DueDate) >= date($from)");
+            cmd.Parameters.AddWithValue("$from", dueDateFrom.Value.ToString("yyyy-MM-dd"));
+        }
+
+        if (dueDateTo.HasValue)
+        {
+            sql.Append(" AND date(DueDate) <= date($to)");
+            cmd.Parameters.AddWithValue("$to", dueDateTo.Value.ToString("yyyy-MM-dd"));
+        }
+
+        sql.Append(" ORDER BY CreatedAt DESC");
+        cmd.CommandText = sql.ToString();
 
         var results = new List<TaskItem>();
         await using var reader = await cmd.ExecuteReaderAsync(ct);

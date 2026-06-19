@@ -12,6 +12,8 @@ import { AuthService } from './core/auth/auth-service';
       <span>Task Manager</span>
       <span class="spacer"></span>
       @if (auth.isAuthenticated()) {
+        <a mat-button routerLink="/tasks">Tasks</a>
+        <a mat-button routerLink="/dashboard">Dashboard</a>
         <span class="username">{{ auth.user()?.username }}</span>
         <button mat-button (click)="auth.logout()">Logout</button>
       } @else {

@@ -85,7 +85,7 @@ public class TaskRepositoryTests : RepositoryTestBase
         await _sut.AddAsync(newer);
         await _sut.AddAsync(otherUsers);
 
-        var result = await _sut.GetByUserAsync(_userId);
+        var result = await _sut.GetByUserAsync(_userId, null, null);
 
         result.Should().HaveCount(2);
         result.Select(t => t.Title).Should().ContainInOrder("newer", "older");
@@ -124,7 +124,7 @@ public class TaskRepositoryTests : RepositoryTestBase
     [Fact]
     public async Task GetByUser_WhenNone_ReturnsEmpty()
     {
-        var result = await _sut.GetByUserAsync(Guid.NewGuid());
+        var result = await _sut.GetByUserAsync(Guid.NewGuid(), null, null);
 
         result.Should().BeEmpty();
     }
