@@ -1,0 +1,66 @@
+:root {
+  // Typography
+  --font-primary: 'Nunito', 'Helvetica Neue', sans-serif;
+
+  // Warm Slate design system palette
+  --color-bg: #F1EFE8;
+  --color-surface: #ffffff;
+  --color-border: #D3D1C7;
+  --color-border-strong: #B4B2A9;
+  --color-text-primary: #2C2C2A;
+  --color-text-secondary: #5F5E5A;
+  --color-accent: #D85A30;
+  --color-accent-hover: #993C1D;
+  --color-accent-light: #F5C4B3;
+
+  // White alias
+  --color-white: #ffffff;
+
+  // Primary blue (dashboard filters, task form wizard)
+  --color-primary: #185fa5;
+  --color-primary-hover: #0c447c;
+  --color-primary-light: rgba(24, 95, 165, 0.1);
+
+  // Task status
+  --color-status-pending: #EF9F27;
+  --color-status-in-progress: #378ADD;
+  --color-status-done: #639922;
+
+  // Semantic states
+  --color-warn: #ba7517;
+  --color-error: #b3261e;
+  --color-danger: #f44336;
+  --color-success: #0f6e56;
+
+  // Component-specific
+  --color-avatar-text: #712B13;
+  --color-highlight: #FAEEDA;
+  --color-kanban-col-bg: #f8f9fa;
+  --color-kanban-drag-over: #eef3fb;
+  --color-kanban-drop-hint: rgba(55, 138, 221, 0.5);
+
+  // Black alpha scale (borders, overlays, text on light surfaces)
+  --alpha-03: rgba(0, 0, 0, 0.03);
+  --alpha-05: rgba(0, 0, 0, 0.05);
+  --alpha-06: rgba(0, 0, 0, 0.06);
+  --alpha-08: rgba(0, 0, 0, 0.08);
+  --alpha-10: rgba(0, 0, 0, 0.10);
+  --alpha-12: rgba(0, 0, 0, 0.12);
+  --alpha-14: rgba(0, 0, 0, 0.14);
+  --alpha-15: rgba(0, 0, 0, 0.15);
+  --alpha-18: rgba(0, 0, 0, 0.18);
+  --alpha-20: rgba(0, 0, 0, 0.20);
+  --alpha-23: rgba(0, 0, 0, 0.23);
+  --alpha-25: rgba(0, 0, 0, 0.25);
+  --alpha-30: rgba(0, 0, 0, 0.30);
+  --alpha-38: rgba(0, 0, 0, 0.38);
+  --alpha-40: rgba(0, 0, 0, 0.40);
+  --alpha-45: rgba(0, 0, 0, 0.45);
+  --alpha-50: rgba(0, 0, 0, 0.50);
+  --alpha-55: rgba(0, 0, 0, 0.55);
+  --alpha-60: rgba(0, 0, 0, 0.60);
+  --alpha-70: rgba(0, 0, 0, 0.70);
+  --alpha-75: rgba(0, 0, 0, 0.75);
+  --alpha-85: rgba(0, 0, 0, 0.85);
+  --alpha-87: rgba(0, 0, 0, 0.87);
+}

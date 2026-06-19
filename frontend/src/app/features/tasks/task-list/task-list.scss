@@ -33,20 +33,20 @@
 
 .kanban-col {
   border-radius: 0 0 8px 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--alpha-10);
   border-top-width: 3px;
-  background: #f8f9fa;
+  background: var(--color-kanban-col-bg);
   padding: 10px 8px 12px;
   min-height: 120px;
   transition: background 0.15s, border-color 0.15s;
 
-  &[data-status='Pending']    { border-top-color: #EF9F27; }
-  &[data-status='InProgress'] { border-top-color: #378ADD; }
-  &[data-status='Done']       { border-top-color: #639922; }
+  &[data-status='Pending']    { border-top-color: var(--color-status-pending); }
+  &[data-status='InProgress'] { border-top-color: var(--color-status-in-progress); }
+  &[data-status='Done']       { border-top-color: var(--color-status-done); }
 
   &.drag-over {
-    background: #eef3fb;
-    border-color: #378ADD;
+    background: var(--color-kanban-drag-over);
+    border-color: var(--color-status-in-progress);
   }
 }
 
@@ -71,16 +71,16 @@
   border-radius: 50%;
   flex-shrink: 0;
 
-  &[data-status='Pending']    { background: #EF9F27; }
-  &[data-status='InProgress'] { background: #378ADD; }
-  &[data-status='Done']       { background: #639922; }
+  &[data-status='Pending']    { background: var(--color-status-pending); }
+  &[data-status='InProgress'] { background: var(--color-status-in-progress); }
+  &[data-status='Done']       { background: var(--color-status-done); }
 }
 
 .col-count {
   font-size: 11px;
-  color: rgba(0,0,0,.54);
-  background: white;
-  border: 1px solid rgba(0,0,0,.12);
+  color: var(--alpha-55);
+  background: var(--color-white);
+  border: 1px solid var(--alpha-12);
   border-radius: 99px;
   padding: 1px 7px;
 }
@@ -94,14 +94,14 @@
 
   &.visible {
     height: 36px;
-    border-color: rgba(55, 138, 221, 0.5);
+    border-color: var(--color-kanban-drop-hint);
     margin-bottom: 8px;
   }
 }
 
 .kb-card {
-  background: white;
-  border: 1px solid rgba(0,0,0,.1);
+  background: var(--color-white);
+  border: 1px solid var(--alpha-10);
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 8px;
@@ -110,13 +110,13 @@
   transition: border-color 0.15s, opacity 0.15s;
 
   &:last-child { margin-bottom: 0; }
-  &:hover { border-color: rgba(0,0,0,.25); }
+  &:hover { border-color: var(--alpha-25); }
 
   &.dragging { opacity: 0.35; cursor: grabbing; }
 
   &.done {
     opacity: 0.6;
-    .card-title { text-decoration: line-through; color: rgba(0,0,0,.45); }
+    .card-title { text-decoration: line-through; color: var(--alpha-45); }
   }
 }
 
@@ -124,11 +124,11 @@
   font-size: 13px;
   font-weight: 500;
   margin: 0 0 4px;
-  color: rgba(0,0,0,.87);
+  color: var(--alpha-87);
   line-height: 1.4;
 
   mark {
-    background: #FAEEDA;
+    background: var(--color-highlight);
     color: inherit;
     border-radius: 2px;
     padding: 0 1px;
@@ -137,12 +137,12 @@
 
 .card-desc {
   font-size: 12px;
-  color: rgba(0,0,0,.54);
+  color: var(--alpha-55);
   margin: 0 0 8px;
   line-height: 1.45;
 
   mark {
-    background: #FAEEDA;
+    background: var(--color-highlight);
     color: inherit;
     border-radius: 2px;
     padding: 0 1px;
@@ -155,7 +155,7 @@
   justify-content: space-between;
   gap: 8px;
   padding-top: 6px;
-  border-top: 1px solid rgba(0,0,0,.06);
+  border-top: 1px solid var(--alpha-06);
 }
 
 .card-date {
@@ -163,7 +163,7 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: rgba(0,0,0,.45);
+  color: var(--alpha-45);
 }
 
 .date-icon {
@@ -185,7 +185,7 @@
     line-height: 28px;
 
     mat-icon { font-size: 16px; width: 16px; height: 16px; }
-    &.warn mat-icon { color: #f44336; }
+    &.warn mat-icon { color: var(--color-danger); }
   }
 }
 
@@ -193,14 +193,14 @@
 
 .col-empty {
   font-size: 12px;
-  color: rgba(0,0,0,.38);
+  color: var(--alpha-38);
   text-align: center;
   padding: 20px 0 8px;
   margin: 0;
 }
 
 .error-msg {
-  color: #f44336;
+  color: var(--color-danger);
   text-align: center;
   padding: 32px;
 }

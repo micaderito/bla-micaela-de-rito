@@ -33,7 +33,7 @@
   height: 34px;
   border-radius: 9px;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,7 +47,7 @@
 }
 
 .brand-name {
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-primary);
   font-weight: 800;
   font-size: 1.3rem;
   letter-spacing: -0.5px;
@@ -65,7 +65,7 @@
   height: 38px;
   padding: 0 16px;
   border-radius: 19px;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-text-secondary);
@@ -86,12 +86,12 @@
   &.active,
   &.primary {
     background: var(--color-accent);
-    color: #fff;
+    color: var(--color-white);
   }
 
   &.primary:hover {
     background: var(--color-accent-hover);
-    color: #fff;
+    color: var(--color-white);
   }
 }
 
@@ -102,11 +102,11 @@
   height: 34px;
   border-radius: 50%;
   background: var(--color-accent-light);
-  color: #712B13;
+  color: var(--color-avatar-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.8rem;
   font-weight: 700;
 }
