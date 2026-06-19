@@ -3,14 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { AuthResult, LoginDto, RegisterDto, User } from '../models';
-
-const TOKEN_KEY = 'auth_token';
+import { API_BASE, AUTH_TOKEN_KEY, ROUTES } from '../constants/app.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  readonly apiBase = 'http://localhost:5080/api/auth';
+  readonly apiBase = API_BASE.AUTH;
 
-  private _token = signal<string | null>(localStorage.getItem(TOKEN_KEY));
+  private _token = signal<string | null>(localStorage.getItem(AUTH_TOKEN_KEY));
   private _user = signal<User | null>(null);
 
   readonly token = this._token.asReadonly();
@@ -36,14 +35,14 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     this._token.set(null);
     this._user.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate([ROUTES.LOGIN]);
   }
 
   setSession(result: AuthResult) {
-    localStorage.setItem(TOKEN_KEY, result.token);
+    localStorage.setItem(AUTH_TOKEN_KEY, result.token);
     this._token.set(result.token);
     this._user.set(result.user);
   }

@@ -9,6 +9,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DatePipe } from '@angular/common';
 import { TaskItem, TaskStatus } from '../../../core/models';
+import { STATUS_LABELS, TASK_FORM_STEPS, TASK_STATUSES } from '../../../core/constants/app.constants';
 
 export interface TaskFormData {
   task?: TaskItem;
@@ -34,14 +35,10 @@ export class TaskFormComponent implements OnInit {
   dialogRef = inject<MatDialogRef<TaskFormComponent>>(MatDialogRef);
   data: TaskFormData = inject(MAT_DIALOG_DATA);
 
-  statuses: TaskStatus[] = ['Pending', 'InProgress', 'Done'];
-  statusLabels: Record<TaskStatus, string> = { Pending: 'Pending', InProgress: 'In Progress', Done: 'Done' };
+  statuses: TaskStatus[] = TASK_STATUSES;
+  statusLabels: Record<TaskStatus, string> = STATUS_LABELS;
 
-  steps: WizardStep[] = [
-    { label: 'Basics', title: 'Set a title and description' },
-    { label: 'Details', title: 'Choose status and due date' },
-    { label: 'Review', title: 'Review and confirm' }
-  ];
+  steps: WizardStep[] = TASK_FORM_STEPS;
 
   currentStep = signal(0);
   isLastStep = computed(() => this.currentStep() === this.steps.length - 1);

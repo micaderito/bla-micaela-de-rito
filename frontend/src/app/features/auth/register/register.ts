@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/auth/auth-service';
+import { ROUTES } from '../../../core/constants/app.constants';
+import { AUTH_MESSAGES } from '../../../core/messages/app.messages';
 
 @Component({
   selector: 'app-register',
@@ -34,9 +36,9 @@ export class RegisterComponent {
     this.error.set(null);
     const { username, email, password } = this.form.value;
     this.auth.register({ username: username!, email: email!, password: password! }).subscribe({
-      next: () => this.router.navigate(['/tasks']),
+      next: () => this.router.navigate([ROUTES.TASKS]),
       error: (err: { error?: { message?: string } }) => {
-        this.error.set(err.error?.message ?? 'Registration failed');
+        this.error.set(err.error?.message ?? AUTH_MESSAGES.REGISTER_FAILED);
         this.loading.set(false);
       }
     });

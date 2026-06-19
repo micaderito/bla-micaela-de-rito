@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/auth/auth-service';
+import { ROUTES } from '../../../core/constants/app.constants';
+import { AUTH_MESSAGES } from '../../../core/messages/app.messages';
 
 @Component({
   selector: 'app-login',
@@ -33,9 +35,9 @@ export class LoginComponent {
     this.error.set(null);
     const { usernameOrEmail, password } = this.form.value;
     this.auth.login({ usernameOrEmail: usernameOrEmail!, password: password! }).subscribe({
-      next: () => this.router.navigate(['/tasks']),
+      next: () => this.router.navigate([ROUTES.TASKS]),
       error: (err: { error?: { message?: string } }) => {
-        this.error.set(err.error?.message ?? 'Login failed');
+        this.error.set(err.error?.message ?? AUTH_MESSAGES.LOGIN_FAILED);
         this.loading.set(false);
       }
     });
